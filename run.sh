@@ -47,8 +47,6 @@ then
         done
     done
 
-    clear
-
     exit 0
 fi
 
