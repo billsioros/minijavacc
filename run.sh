@@ -177,7 +177,7 @@ do
         fi
     done
 
-    echo -e "$brief"
+    echo -e "$brief\n"
 
     if [ "$problematic" -gt 0 ]
     then
