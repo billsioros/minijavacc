@@ -1,6 +1,6 @@
 
 import semantic.visitor.*;
-import semantic.mod.*;
+import semantic.options.*;
 import semantic.error.*;
 import java.io.*;
 

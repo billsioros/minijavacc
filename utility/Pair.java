@@ -1,5 +1,5 @@
 
-package semantic.utility;
+package utility;
 
 public class Pair<First, Second>
 {

@@ -1,6 +1,8 @@
 
 package semantic.visitor.detail;
 
+import error.*;
+
 import java.util.*;
 
 public class Scope extends Stack<Context>
@@ -14,7 +16,7 @@ public class Scope extends Stack<Context>
         push(new Global());
     }
 
-    public Context getLocal() throws InternalError
+    public Context getLocal() throws UnrecoverableError
     {
         Context context;
         try
@@ -23,13 +25,13 @@ public class Scope extends Stack<Context>
         }
         catch (NoSuchElementException ex)
         {
-            throw new InternalError("Scope.getLocal: No 'Context' instance");
+            throw new UnrecoverableError("Scope.getLocal: No 'Context' instance");
         }
 
         return context;
     }
 
-    public Context getOuter() throws InternalError
+    public Context getOuter() throws UnrecoverableError
     {
         Context context = null;
         try
@@ -38,13 +40,13 @@ public class Scope extends Stack<Context>
         }
         catch(ArrayIndexOutOfBoundsException ex)
         {
-            throw new InternalError("Failed to fetch the outer context of '" + getLocal().getIdentifier() + "'");
+            throw new UnrecoverableError("Failed to fetch the outer context of '" + getLocal().getIdentifier() + "'");
         }
 
         return context;
     }
 
-    public Global getGlobal() throws InternalError
+    public Global getGlobal() throws UnrecoverableError
     {
         Context context;
         
@@ -54,16 +56,16 @@ public class Scope extends Stack<Context>
         }
         catch (NoSuchElementException ex)
         {
-            throw new InternalError("Scope.getGlobal: No 'Context' instance");
+            throw new UnrecoverableError("Scope.getGlobal: No 'Context' instance");
         }
 
         if (!(context instanceof Global))
-            throw new InternalError("Scope.getGlobal.context is not an instance of the 'Global' class");
+            throw new UnrecoverableError("Scope.getGlobal.context is not an instance of the 'Global' class");
 
         return (Global)context;
     }
     
-    public Variable acquireVariable(String identifier) throws Exception, InternalError
+    public Variable acquireVariable(String identifier) throws Exception, UnrecoverableError
     {
         try
         {
@@ -82,27 +84,27 @@ public class Scope extends Stack<Context>
         }
     }
     
-    public void registerVariable(Variable variable) throws Exception, InternalError
+    public void registerVariable(Variable variable) throws Exception, UnrecoverableError
     {
         getLocal().registerVariable(variable);
     }
 
-    public Function acquireFunction(String identifier) throws Exception, InternalError
+    public Function acquireFunction(String identifier) throws Exception, UnrecoverableError
     {
         return getLocal().acquireFunction(identifier);
     }
     
-    public void registerFunction(Function function) throws Exception, InternalError
+    public void registerFunction(Function function) throws Exception, UnrecoverableError
     {
         getLocal().registerFunction(function); push(function);
     }
 
-    public Base acquireClass(String identifier) throws Exception, InternalError
+    public Base acquireClass(String identifier) throws Exception, UnrecoverableError
     {
         return getLocal().acquireClass(identifier);
     }
     
-    public void registerClass(Base base) throws Exception, InternalError
+    public void registerClass(Base base) throws Exception, UnrecoverableError
     {
         getLocal().registerClass(base); push(base);
     }

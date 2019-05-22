@@ -1,9 +1,11 @@
 
 package semantic.visitor;
 
+import error.*;
+
 import semantic.error.*;
 
-import semantic.utility.*;
+import utility.*;
 
 import semantic.visitor.detail.*;
 
@@ -26,10 +28,10 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         this.global = global;
     }
 
-    public void visit(Pending pending) throws semantic.error.InternalError
+    public void visit(Pending pending) throws UnrecoverableError
     {
         if (pending == null)
-            throw new semantic.error.InternalError("StatementVisitor.visit.pending is null");
+            throw new UnrecoverableError("StatementVisitor.visit.pending is null");
 
         for (Pair<Scope, Node> entry : pending)
             entry.second.accept(this, entry.first);

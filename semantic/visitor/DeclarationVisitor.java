@@ -1,6 +1,8 @@
 
 package semantic.visitor;
 
+import error.*;
+
 import semantic.error.*;
 
 import semantic.visitor.detail.*;
@@ -165,7 +167,7 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
             }
             catch (EmptyStackException emptyStackException)
             {
-                throw new semantic.error.InternalError("DeclarationVisitor.visit(MainClass).scope failed to pop()");
+                throw new UnrecoverableError("DeclarationVisitor.visit(MainClass).scope failed to pop()");
             }
 
             return null;

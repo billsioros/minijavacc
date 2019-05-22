@@ -1,9 +1,9 @@
 
 package semantic.visitor.detail;
 
-import semantic.mod.*;
+import semantic.options.*;
 
-import semantic.utility.*;
+import utility.*;
 
 import java.util.*;
 

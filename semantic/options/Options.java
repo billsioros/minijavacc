@@ -1,5 +1,5 @@
 
-package semantic.mod;
+package semantic.options;
 
 public class Options
 {

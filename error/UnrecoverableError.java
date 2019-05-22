@@ -1,13 +1,13 @@
 
-package semantic.error;
+package error;
 
-public class InternalError extends Error
+public class UnrecoverableError extends Error
 {
     private static final long serialVersionUID = 1L;
     
     private String message;
 
-    public InternalError(String message)
+    public UnrecoverableError(String message)
     {
         this.message = message;
     }

@@ -1,7 +1,9 @@
 
 package semantic.visitor.detail;
 
-import semantic.utility.*;
+import error.*;
+
+import utility.*;
 
 import syntaxtree.*;
 
@@ -11,10 +13,10 @@ public class Pending extends LinkedList<Pair<Scope, Node>>
 {
     private static final long serialVersionUID = 1L;
 
-    public void insert(Scope scope, Node node) throws InternalError
+    public void insert(Scope scope, Node node) throws UnrecoverableError
     {
         if (scope == null)
-            throw new InternalError("Pending.insert.scope is null");
+            throw new UnrecoverableError("Pending.insert.scope is null");
 
         add(new Pair<Scope, Node>((Scope)scope.clone(), node));
     }
