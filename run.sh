@@ -102,7 +102,7 @@ do
             name="${name%.*}"
 
             file_out="$dir_out"/"$name".out
-            file_off="$dir_off"/"$name".out
+            file_off="$dir_off"/"$name".off
             file_err="$dir_err"/"$name".error
 
             if ! java "$EXECUTABLE" "$file" 2> "$file_err" 1> "$file_out"

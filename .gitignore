@@ -1,6 +1,9 @@
-*.java
+/*.java
+
+!Main.java
+
+/syntaxtree/
+/visitor/
 *.class
 *.error
 *.out
-
-!Main.java
