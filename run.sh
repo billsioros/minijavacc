@@ -35,7 +35,7 @@ function log
 
 if [[ "$*" == *"--clean"* ]]
 then
-    log "[MESSAGE]" "Purging"
+    log "[MESSAGE]" "Purging..."
 
     ./compile.sh --clean
 
@@ -46,6 +46,8 @@ then
             rm -rfv "$dataset"/"$label"/out "$dataset"/"$label"/error
         done
     done
+
+    clear
 
     exit 0
 fi
