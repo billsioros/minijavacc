@@ -1,5 +1,5 @@
 
-package semantic.visitor.detail;
+package semantic.detail;
 
 import error.*;
 
@@ -14,6 +14,16 @@ public class Scope extends Stack<Context>
         super();
 
         push(new Global());
+    }
+
+    public Scope(Global global) throws UnrecoverableError
+    {
+        super();
+
+        if (global == null)
+            throw new UnrecoverableError("Scope.Scope.global is null");
+
+        push(global);
     }
 
     public Context getLocal() throws UnrecoverableError

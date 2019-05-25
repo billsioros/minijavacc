@@ -7,7 +7,7 @@ import semantic.error.*;
 
 import utility.*;
 
-import semantic.visitor.detail.*;
+import semantic.detail.*;
 
 import visitor.*;
 

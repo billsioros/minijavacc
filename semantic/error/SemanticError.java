@@ -3,7 +3,7 @@ package semantic.error;
 
 import error.*;
 
-import semantic.visitor.detail.*;
+import semantic.detail.*;
 
 import syntaxtree.*;
 

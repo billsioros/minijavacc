@@ -1,4 +1,4 @@
-package semantic.visitor.detail;
+package semantic.detail;
 
 import java.lang.reflect.Field;
 import java.util.Enumeration;

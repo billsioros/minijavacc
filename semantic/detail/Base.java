@@ -1,5 +1,5 @@
 
-package semantic.visitor.detail;
+package semantic.detail;
 
 import semantic.options.*;
 
@@ -67,6 +67,11 @@ public class Base implements Context
     public String getIdentifier()
     {
         return identifier;
+    }
+
+    public int size()
+    {
+        return variables.getOffset();
     }
 
     public boolean isSubclassOf(Base base)

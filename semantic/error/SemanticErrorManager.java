@@ -1,7 +1,7 @@
 
 package semantic.error;
 
-import semantic.visitor.detail.*;
+import semantic.detail.*;
 
 import syntaxtree.*;
 

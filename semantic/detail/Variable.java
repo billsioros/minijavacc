@@ -1,5 +1,5 @@
 
-package semantic.visitor.detail;
+package semantic.detail;
 
 public class Variable
 {

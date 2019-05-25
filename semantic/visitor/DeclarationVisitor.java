@@ -5,7 +5,7 @@ import error.*;
 
 import semantic.error.*;
 
-import semantic.visitor.detail.*;
+import semantic.detail.*;
 
 import visitor.*;
 

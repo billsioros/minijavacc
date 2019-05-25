@@ -1,5 +1,5 @@
 
-package semantic.visitor.detail;
+package semantic.detail;
 
 import java.util.*;
 
