@@ -41,28 +41,28 @@ public class Function extends Variable implements Context
         return 8;
     }
 
-    public boolean isApplicable(String[] arguementTypes, Global global)
+    public boolean isApplicable(String[] argtypes, Global global)
     {
         if (arguements == null)
-            return arguementTypes == null;
+            return argtypes == null;
 
-        if (arguementTypes == null)
+        if (argtypes == null)
             return arguements == null;
 
-        if (arguementTypes.length != arguements.size())
+        if (argtypes.length != arguements.size())
             return false;
 
         int index = 0;
         for (Map.Entry<String, String> entry : arguements.entrySet())
         {
-            String parameterType = entry.getValue(), arguementType = arguementTypes[index++];
+            String parameterType = entry.getValue(), argtype = argtypes[index++];
 
-            if (!arguementType.equals(parameterType.trim()))
+            if (!argtype.equals(parameterType.trim()))
             {
                 try
                 {
                     Base base    = global.acquireClass(parameterType);
-                    Base derived = global.acquireClass(arguementType);
+                    Base derived = global.acquireClass(argtype);
 
                     if (!derived.isSubclassOf(base))
                         return false;
@@ -134,8 +134,8 @@ public class Function extends Variable implements Context
     @Override
     public String toString()
     {
-        String arguementTypes[] = getArguementTypes();
+        String argtypes[] = getArguementTypes();
 
-        return getType() + " " + getIdentifier() + "(" + (arguementTypes != null ? String.join(", ", arguementTypes) : "") + ")";
+        return getType() + " " + getIdentifier() + "(" + (argtypes != null ? String.join(", ", argtypes) : "") + ")";
     }
 }

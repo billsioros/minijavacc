@@ -446,11 +446,11 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         // f3 -> "("
         // f4 -> ( ExpressionList() )?
         // f5 -> ")"
-        String arguementTypes = n.f4.present() ? n.f4.accept(this, scope) : "";
+        String argtypes = n.f4.present() ? n.f4.accept(this, scope) : "";
 
         if (expression == "int" || expression == "boolean" || expression == "int[]")
         {
-            SemanticErrorManager.register(scope, n, "Cannot invoke '" + identifier + "(" + arguementTypes + ")' on the primitive type '" + expression + "'");
+            SemanticErrorManager.register(scope, n, "Cannot invoke '" + identifier + "(" + argtypes + ")' on the primitive type '" + expression + "'");
 
             return "?";
         }
@@ -479,8 +479,8 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
             return "?";
         }
 
-        if (!function.isApplicable(!arguementTypes.isEmpty() ? arguementTypes.split(",") : null, global))
-            SemanticErrorManager.register(scope, n.f2, "The method '" + function.toString() + "' in the type '" + context.getIdentifier() + "' is not applicable for the arguments (" + arguementTypes + ")");
+        if (!function.isApplicable(!argtypes.isEmpty() ? argtypes.split(",") : null, global))
+            SemanticErrorManager.register(scope, n.f2, "The method '" + function.toString() + "' in the type '" + context.getIdentifier() + "' is not applicable for the arguments (" + argtypes + ")");
 
         return function.getType();
     }
