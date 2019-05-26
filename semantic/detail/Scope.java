@@ -84,9 +84,9 @@ public class Scope extends Stack<Context>
         }
     }
 
-    public final void registerVariable(Variable variable) throws Exception, UnrecoverableError
+    public final void register(Variable variable) throws Exception, UnrecoverableError
     {
-        getLocal().registerVariable(variable);
+        getLocal().register(variable);
     }
 
     public Function acquireFunction(String identifier) throws Exception, UnrecoverableError
@@ -94,9 +94,9 @@ public class Scope extends Stack<Context>
         return getLocal().acquireFunction(identifier);
     }
 
-    public final void registerFunction(Function function) throws Exception, UnrecoverableError
+    public final void register(Function function) throws Exception, UnrecoverableError
     {
-        getLocal().registerFunction(function); push(function);
+        getLocal().register(function); push(function);
     }
 
     public Base acquireClass(String identifier) throws Exception, UnrecoverableError
@@ -104,9 +104,9 @@ public class Scope extends Stack<Context>
         return getLocal().acquireClass(identifier);
     }
 
-    public final void registerClass(Base base) throws Exception, UnrecoverableError
+    public final void register(Base base) throws Exception, UnrecoverableError
     {
-        getLocal().registerClass(base); push(base);
+        getLocal().register(base); push(base);
     }
 
     @Override

@@ -30,7 +30,7 @@ public class Global implements Context
     }
 
     @Override
-    public void registerClass(Base base) throws Exception
+    public void register(Base base) throws Exception
     {
         if (classes.putIfAbsent(base.getIdentifier(), base) != null)
             throw new Exception("Multiple definitions of type '" + base.getIdentifier() + "'");

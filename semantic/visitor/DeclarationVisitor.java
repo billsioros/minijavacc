@@ -133,7 +133,7 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
         // f1 -> Identifier()
         try
         {
-            scope.registerClass(new Base(n.f1.accept(this)));
+            scope.register(new Base(n.f1.accept(this)));
         }
         catch (Exception ex)
         {
@@ -204,7 +204,7 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
         // f1 -> Identifier()
         try
         {
-            scope.registerClass(new Base(n.f1.accept(this)));
+            scope.register(new Base(n.f1.accept(this)));
         }
         catch (Exception ex)
         {
@@ -239,7 +239,7 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
 
             try
             {
-                scope.registerClass(new Derived(identifier, base));
+                scope.register(new Derived(identifier, base));
             }
             catch (Exception ex)
             {
@@ -278,7 +278,7 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
 
         try
         {
-            scope.registerVariable(new Variable(type, identifier));
+            scope.register(new Variable(type, identifier));
         }
         catch (Exception ex)
         {
@@ -307,7 +307,7 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
 
         try
         {
-            scope.registerFunction(new Function(type, identifier, arguements));
+            scope.register(new Function(type, identifier, arguements));
         }
         catch (Exception ex)
         {
