@@ -1,7 +1,10 @@
 
 import semantic.visitor.*;
+
 import semantic.options.*;
+
 import semantic.error.*;
+
 import java.io.*;
 
 class Main
@@ -13,7 +16,7 @@ class Main
         if (filenames.length < 1)
         {
             System.err.println("Usage: java Main [FILE_1] [FILE_2] ... [FILE_N]");
-            
+
 			System.exit(1);
 		}
 
@@ -22,7 +25,7 @@ class Main
         for (String filename : filenames)
         {
             File file = new File(filename);
-            
+
             try
             {
                 fis = new FileInputStream(file);
@@ -42,7 +45,7 @@ class Main
                 if (status == SemanticErrorManager.FAILURE)
                 {
                     SemanticErrorManager.flush(file.getName());
-                    
+
                     continue;
                 }
 
