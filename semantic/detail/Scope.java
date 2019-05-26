@@ -59,7 +59,7 @@ public class Scope extends Stack<Context>
     public Global getGlobal() throws UnrecoverableError
     {
         Context context;
-        
+
         try
         {
             context = firstElement();
@@ -74,7 +74,7 @@ public class Scope extends Stack<Context>
 
         return (Global)context;
     }
-    
+
     public Variable acquireVariable(String identifier) throws Exception, UnrecoverableError
     {
         try
@@ -93,7 +93,7 @@ public class Scope extends Stack<Context>
             }
         }
     }
-    
+
     public void registerVariable(Variable variable) throws Exception, UnrecoverableError
     {
         getLocal().registerVariable(variable);
@@ -103,7 +103,7 @@ public class Scope extends Stack<Context>
     {
         return getLocal().acquireFunction(identifier);
     }
-    
+
     public void registerFunction(Function function) throws Exception, UnrecoverableError
     {
         getLocal().registerFunction(function); push(function);
@@ -113,12 +113,12 @@ public class Scope extends Stack<Context>
     {
         return getLocal().acquireClass(identifier);
     }
-    
+
     public void registerClass(Base base) throws Exception, UnrecoverableError
     {
         getLocal().registerClass(base); push(base);
     }
-    
+
     @Override
     public String toString()
     {
@@ -134,7 +134,7 @@ public class Scope extends Stack<Context>
             else
                 string += identifier;
         }
-        
+
         return string;
     }
 }
