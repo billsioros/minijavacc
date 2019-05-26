@@ -97,7 +97,7 @@ public class Function extends Variable implements Context
     }
     
     @Override
-    public void registerVariable(Variable variable) throws Exception
+    public void register(Variable variable) throws Exception
     {
         String key = variable.getIdentifier();
         
