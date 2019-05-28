@@ -1,6 +1,8 @@
 
 package semantic.detail;
 
+import utility.*;
+
 import java.util.*;
 
 public class Function extends Variable implements Context
@@ -14,7 +16,7 @@ public class Function extends Variable implements Context
         super(type, identifier);
 
         this.arguements = null;
-        
+
         if (arguements != null)
         {
             this.arguements = new LinkedHashMap<String, String>();
@@ -83,7 +85,7 @@ public class Function extends Variable implements Context
     }
 
     @Override
-    public Variable acquireVariable(String identifier) throws Exception
+    public Pair<Variable, Integer> acquireVariable(String identifier) throws Exception
     {
         String type = variables.get(identifier);
 
@@ -92,15 +94,15 @@ public class Function extends Variable implements Context
 
         if (type == null)
             throw new Exception("'" + identifier + "' cannot be resolved to a variable");
-        
-        return new Variable(type, identifier);
+
+        return new Pair<Variable, Integer>(new Variable(type, identifier), -1);
     }
-    
+
     @Override
     public void register(Variable variable) throws Exception
     {
         String key = variable.getIdentifier();
-        
+
         if (arguements != null && arguements.get(key) != null)
             throw new Exception("Multiple declarations of local variable '" + key + "'");
 

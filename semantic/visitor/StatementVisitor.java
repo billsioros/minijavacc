@@ -190,7 +190,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         try
         {
             // f0 -> Identifier()
-            String type1 = scope.acquireVariable(n.f0.f0.toString()).getType();
+            String type1 = scope.acquireVariable(n.f0.f0.toString()).first.getType();
 
             // f1 -> "="
             // f2 -> Expression()
@@ -227,7 +227,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         try
         {
             // f0 -> Identifier()
-            String variableType = scope.acquireVariable(n.f0.f0.toString()).getType();
+            String variableType = scope.acquireVariable(n.f0.f0.toString()).first.getType();
 
             if (!variableType.equals("int[]"))
                 SemanticErrorManager.register(scope, n.f0, "The type of the expression must be an array type but it resolved to '" + variableType);
@@ -463,7 +463,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
 
             try
             {
-                function = context.acquireFunction(identifier);
+                function = context.acquireFunction(identifier).first;
             }
             catch (Exception ex)
             {
@@ -562,7 +562,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
 
         try
         {
-            return scope.acquireVariable(n.f0.toString()).getType();
+            return scope.acquireVariable(n.f0.toString()).first.getType();
         }
         catch (Exception ex)
         {
