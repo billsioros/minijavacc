@@ -9,40 +9,6 @@ import java.util.*;
 
 public class Base implements Context
 {
-    protected class Table<Declaration extends Variable> extends LinkedHashMap<String, Pair<Declaration, Integer>>
-    {
-        private static final long serialVersionUID = 1L;
-
-        private int offset;
-
-        public Table(int offset)
-        {
-            this.offset = offset;
-        }
-
-        public int getOffset()
-        {
-            return offset;
-        }
-
-        public Declaration register(Declaration declaration)
-        {
-            Pair<Declaration, Integer> pair = putIfAbsent(declaration.getIdentifier(), new Pair<Declaration, Integer>(declaration, offset));
-
-            if (pair == null)
-                offset += declaration.size();
-
-            return (pair != null ? pair.first : null);
-        }
-
-        public Declaration acquire(String identifier)
-        {
-            Pair<Declaration, Integer> pair = get(identifier);
-
-            return (pair != null ? pair.first : null);
-        }
-    }
-
     protected String identifier;
 
     protected Table<Variable> variables;
@@ -69,9 +35,14 @@ public class Base implements Context
         return identifier;
     }
 
-    public int size()
+    public int variableCount()
     {
         return variables.getOffset();
+    }
+
+    public int functionCount()
+    {
+        return functions.getOffset();
     }
 
     public boolean isSubclassOf(Base base)
@@ -80,18 +51,18 @@ public class Base implements Context
     }
 
     @Override
-    public Variable acquireVariable(String identifier) throws Exception
+    public Pair<Variable, Integer> acquireVariable(String identifier) throws Exception
     {
-        Variable variable = variables.acquire(identifier);
+        Pair<Variable, Integer> pair = variables.get(identifier);
 
-        if (variable == null)
+        if (pair == null)
             throw new Exception("'" + identifier + "' cannot be resolved or is not a field");
 
-        return variable;
+        return pair;
     }
 
     @Override
-    public void registerVariable(Variable variable) throws Exception
+    public void register(Variable variable) throws Exception
     {
         Variable other = variables.register(variable);
 
@@ -100,18 +71,18 @@ public class Base implements Context
     }
 
     @Override
-    public Function acquireFunction(String identifier) throws Exception
+    public Pair<Function, Integer> acquireFunction(String identifier) throws Exception
     {
-        Function function = functions.acquire(identifier);
+        Pair<Function, Integer> pair = functions.get(identifier);
 
-        if (function == null)
+        if (pair == null)
             throw new Exception("The method '" + identifier + "' is undefined for the type '" + this.identifier + "'");
 
-        return function;
+        return pair;
     }
 
     @Override
-    public void registerFunction(Function function) throws Exception
+    public void register(Function function) throws Exception
     {
         Function other = functions.register(function);
 
@@ -119,7 +90,7 @@ public class Base implements Context
             throw new Exception("Multiple definitions of function '" + function.getIdentifier() + "' in type '" + this.identifier + "'");
     }
 
-    protected String getVariables()
+    protected String getVariablesString()
     {
         String content = "";
 
@@ -147,7 +118,17 @@ public class Base implements Context
         return content;
     }
 
-    protected String getFunctions()
+    public LinkedList<Function> getFunctions()
+    {
+        LinkedList<Function> functions = new LinkedList<Function>();
+
+        for (Pair<Function, Integer> pair : this.functions.values())
+            functions.add(pair.first);
+
+        return functions;
+    }
+
+    protected String getFunctionsString()
     {
         String content = "";
 
@@ -179,8 +160,8 @@ public class Base implements Context
     public String toString()
     {
         if (!Options.JAVA_FORMAT)
-            return "-----------Class " + this.identifier + "-----------\n" + getVariables() + getFunctions() + "\n";
+            return "-----------Class " + this.identifier + "-----------\n" + getVariablesString() + getFunctionsString() + "\n";
 
-        return "class " + this.identifier + "\n{" + getVariables() + "\n" + getFunctions() + "}\n\n";
+        return "class " + this.identifier + "\n{" + getVariablesString() + "\n" + getFunctionsString() + "}\n\n";
     }
 }

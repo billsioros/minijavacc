@@ -5,6 +5,8 @@ import semantic.options.*;
 
 import utility.*;
 
+import java.util.*;
+
 public class Derived extends Base
 {
     private Base base;
@@ -16,21 +18,34 @@ public class Derived extends Base
         this.base = base;
     }
 
+    @Override
+    public int variableCount()
+    {
+        return variables.size() + base.variableCount();
+    }
+
+    @Override
+    public int functionCount()
+    {
+        return functions.size() + base.functionCount();
+    }
+
+    @Override
     public boolean isSubclassOf(Base base)
     {
         return this.base.getIdentifier() == base.getIdentifier() || this.base.isSubclassOf(base);
     }
 
     @Override
-    public Variable acquireVariable(String identifier) throws Exception
+    public Pair<Variable, Integer> acquireVariable(String identifier) throws Exception
     {
-        Variable variable = variables.acquire(identifier);
+        Pair<Variable, Integer> pair = variables.get(identifier);
 
-        if (variable == null)
+        if (pair == null)
         {
             try
             {
-                variable = base.acquireVariable(identifier);
+                pair = base.acquireVariable(identifier);
             }
             catch (Exception ex)
             {
@@ -38,19 +53,19 @@ public class Derived extends Base
             }
         }
 
-        return variable;
+        return pair;
     }
 
     @Override
-    public Function acquireFunction(String identifier) throws Exception
+    public Pair<Function, Integer> acquireFunction(String identifier) throws Exception
     {
-        Function function = functions.acquire(identifier);
+        Pair<Function, Integer> pair = functions.get(identifier);
 
-        if (function == null)
+        if (pair == null)
         {
             try
             {
-                function = base.acquireFunction(identifier);
+                pair = base.acquireFunction(identifier);
             }
             catch (Exception ex)
             {
@@ -58,11 +73,11 @@ public class Derived extends Base
             }
         }
 
-        return function;
+        return pair;
     }
 
     @Override
-    public void registerFunction(Function function) throws Exception
+    public void register(Function function) throws Exception
     {
         String key = function.getIdentifier();
 
@@ -70,7 +85,7 @@ public class Derived extends Base
 
         try
         {
-            other = base.acquireFunction(key);
+            other = base.acquireFunction(key).first;
         }
         catch (Exception ex)
         {
@@ -83,11 +98,24 @@ public class Derived extends Base
     }
 
     @Override
+    public LinkedList<Function> getFunctions()
+    {
+        LinkedList<Function> functions = new LinkedList<Function>();
+
+        functions.addAll(base.getFunctions());
+
+        for (Pair<Function, Integer> pair : this.functions.values())
+            functions.add(pair.first);
+
+        return functions;
+    }
+
+    @Override
     public String toString()
     {
         if (!Options.JAVA_FORMAT)
-            return "-----------Class " + this.identifier + "-----------\n" + getVariables() + getFunctions() + "\n";
+            return "-----------Class " + this.identifier + "-----------\n" + getVariablesString() + getFunctionsString() + "\n";
 
-        return "class " + this.identifier + " extends " + base.getIdentifier() + "\n{" + getVariables() + "\n" + getFunctions() + "}\n\n";
+        return "class " + this.identifier + " extends " + base.getIdentifier() + "\n{" + getVariablesString() + "\n" + getFunctionsString() + "}\n\n";
     }
 }
