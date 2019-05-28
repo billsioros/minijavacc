@@ -13,7 +13,7 @@ public class Pending extends LinkedList<Pair<Scope, Node>>
 {
     private static final long serialVersionUID = 1L;
 
-    public void insert(Scope scope, Node node) throws UnrecoverableError
+    public void insert(Scope scope, Node node) 
     {
         if (scope == null)
             throw new UnrecoverableError("Pending.insert.scope is null");

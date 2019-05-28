@@ -18,7 +18,7 @@ public class Scope extends Stack<Context>
         push(new Global());
     }
 
-    public Context getLocal() throws UnrecoverableError
+    public Context getLocal() 
     {
         Context context;
         try
@@ -33,7 +33,7 @@ public class Scope extends Stack<Context>
         return context;
     }
 
-    public Context getOuter() throws UnrecoverableError
+    public Context getOuter() 
     {
         Context context = null;
         try
@@ -48,7 +48,7 @@ public class Scope extends Stack<Context>
         return context;
     }
 
-    public Global getGlobal() throws UnrecoverableError
+    public Global getGlobal() 
     {
         Context context;
 

@@ -11,7 +11,7 @@ public class SemanticError
 {
     private String msg;
 
-    public SemanticError(Scope scp, Node node, String msg) throws UnrecoverableError
+    public SemanticError(Scope scp, Node node, String msg) 
     {
         if (scp == null)
             throw new UnrecoverableError("SemanticError.SemanticError.scp is null");

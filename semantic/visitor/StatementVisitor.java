@@ -28,7 +28,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         this.global = global;
     }
 
-    public void visit(Pending pending) throws UnrecoverableError
+    public void visit(Pending pending) 
     {
         if (pending == null)
             throw new UnrecoverableError("StatementVisitor.visit.pending is null");
