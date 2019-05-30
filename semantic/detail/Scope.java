@@ -18,7 +18,14 @@ public class Scope extends Stack<Context>
         push(new Global());
     }
 
-    public Context getLocal() 
+    public Scope(Global global)
+    {
+        super();
+
+        push(global);
+    }
+
+    public Context getLocal()
     {
         Context context;
         try
@@ -33,7 +40,7 @@ public class Scope extends Stack<Context>
         return context;
     }
 
-    public Context getOuter() 
+    public Context getOuter()
     {
         Context context = null;
         try
@@ -48,7 +55,7 @@ public class Scope extends Stack<Context>
         return context;
     }
 
-    public Global getGlobal() 
+    public Global getGlobal()
     {
         Context context;
 
