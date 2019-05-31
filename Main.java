@@ -1,9 +1,15 @@
 
 import semantic.visitor.*;
 
+import semantic.detail.*;
+
 import semantic.options.*;
 
 import semantic.error.*;
+
+import llvm.visitor.*;
+
+import syntaxtree.*;
 
 import java.io.*;
 
@@ -34,9 +40,15 @@ class Main
 
                 DeclarationVisitor declarationVisitor = new DeclarationVisitor();
 
-                StatementVisitor statementVisitor = new StatementVisitor(declarationVisitor.getGlobal());
+                Global global = declarationVisitor.getGlobal();
 
-                String structure = parser.Goal().accept(declarationVisitor);
+                StatementVisitor statementVisitor = new StatementVisitor(global);
+
+                LLVMVisitor llvmVisitor = new LLVMVisitor(global);
+
+                Goal goal = parser.Goal();
+
+                String structure = goal.accept(declarationVisitor);
 
                 statementVisitor.visit(declarationVisitor.getPending());
 
@@ -48,6 +60,8 @@ class Main
 
                     continue;
                 }
+
+                goal.accept(llvmVisitor);
 
                 if (Options.PRINT_PROGRAM_STRUCTURE)
                     System.out.println(structure);
