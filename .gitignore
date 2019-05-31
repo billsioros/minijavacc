@@ -6,8 +6,11 @@
 /visitor/
 *.class
 *.error
+*.off
 *.out
 *.log
+*.ll
+*.llvm
 
 .vscode/
 backup/
