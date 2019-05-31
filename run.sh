@@ -39,7 +39,7 @@ then
 
     ./compile.sh --clean
 
-    find . -maxdepth 5 -name "*.llvm" -delete -print
+    find . -maxdepth 5 -name "*.ll" -delete -print
 
     for dataset in "${DATASETS[@]}"
     do

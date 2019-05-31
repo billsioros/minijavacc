@@ -234,6 +234,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             n.f15.accept(this); // f15 -> ( Statement() )*
 
             // n.f16.accept(this); f16 -> "}"
+            LLVM.emit("ret i32 0");
             LLVM.emit("}");
 
             scope.pop();
@@ -455,8 +456,10 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             String register = assertMatchingType(expression, type);
 
-            LLVM.emit("store " + type + " " + register + ", " + variable.getType() + variable.getIdentifier());
+            LLVM.emit("store " + type + " " + register + ", " + variable.getType() + " " + variable.getIdentifier());
             // n.f3.accept(this); f3 -> ";"
+
+            LLVM.emit("");
 
             return null;
         }
@@ -496,6 +499,8 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             LLVM.emit("store i32 " + i32Value + ", i32 * " + i32Pointer);
             // n.f6.accept(this); f6 -> ";"
+
+            LLVM.emit("");
 
             return null;
         }
@@ -579,6 +584,8 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             LLVM.emit("call void @print_i32(i32 " + assertMatchingType(expression, "i32") + ")");
         else
             throw new UnrecoverableError("'" + identifier + "' is of type '" + type + "'");
+
+        LLVM.emit("");
 
         return null;
     }

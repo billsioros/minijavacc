@@ -23,10 +23,10 @@ class Emitter extends PrintWriter
 
         emit("@_i32fmt = constant [4 x i8] c\"%d\\0a\\00\"");
 
-        emit("@_true  = constant [6 x i8] c\"true\0a\00\"");
-        emit("@_false = constant [7 x i8] c\"false\0a\00\"");
+        emit("@_true  = constant [6 x i8] c\"true\\0a\\00\"");
+        emit("@_false = constant [7 x i8] c\"false\\0a\\00\"");
 
-        emit("@_oob_exception = constant [15 x i8] c\"Out of bounds\0a\00\"");
+        emit("@_oob_exception = constant [15 x i8] c\"Out of bounds\\0a\\00\"");
 
         emit("define void @print_i32(i32 %var)");
         emit("{");
@@ -38,10 +38,13 @@ class Emitter extends PrintWriter
         emit("define void @print_i1(i1 %var)");
         emit("{");
         emit("br i1 %var, label %isTrue, label %isFalse");
+        emit("");
         emit("isTrue:");
         emit("%_true_str = bitcast [15 x i8] * @_true to i8 *");
+        emit("");
         emit("isFalse:");
         emit("%_false_str = bitcast [15 x i8] * @_false to i8 *");
+        emit("");
         emit("%_str = phi i8 * [%_true_str, %isTrue], [%_false_str, %isFalse]");
         emit("call i32 (i8 *, ...) @printf(i8 * %_str)");
         emit("ret void");
@@ -67,11 +70,11 @@ class Emitter extends PrintWriter
             throw new UnrecoverableError("'" + filename + "' does not name a file");
 
         if (filename.contains(".java"))
-            filename = filename.replace(".java", ".llvm");
+            filename = filename.replace(".java", ".ll");
         else if (filename.contains(".mini"))
-            filename = filename.replace(".mini", ".llvm");
+            filename = filename.replace(".mini", ".ll");
         else
-            filename += ".llvm";
+            filename += ".ll";
 
         File file = new File(filename);
 
@@ -104,9 +107,13 @@ class Emitter extends PrintWriter
         if (instance == null)
             throw new UnrecoverableError("Emitter.instance is null");
 
-        if (string.matches("define.*"))
+        string = string.trim();
+
+        if (string.matches("(define|@).*"))
             instance.println("\n" + string);
-        else if (string.matches("(@|\\{|\\[).*"))
+        else if (string.matches("ret.*"))
+            instance.println("\n\t" + string);
+        else if (string.matches("(\\{|\\[).*"))
             instance.println(string);
         else if (string.matches("(declare|\\}|\\]).*"))
             instance.println(string + "\n");
