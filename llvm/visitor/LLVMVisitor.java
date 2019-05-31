@@ -47,8 +47,8 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
         String variable_type = variable.getType();
         String identifier    = variable.getIdentifier();
 
-        LLVM.Pointer varpointer = LLVM.Pointer.from(variable_type);
-        LLVM.Pointer exppointer = LLVM.Pointer.from(expected_type);
+        Pointer varpointer = Pointer.from(variable_type);
+        Pointer exppointer = Pointer.from(expected_type);
 
         if (!varpointer.base.equals(exppointer.base))
         {
@@ -106,7 +106,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             }
 
             if (type.startsWith("i8"))
-                type = LLVM.Pointer.raw(pair.first.getType(), LLVM.Pointer.from(type).degree);
+                type = Pointer.raw(pair.first.getType(), Pointer.from(type).degree);
 
             return new Variable(type, identifier);
         }
@@ -449,9 +449,9 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             // n.f1.accept(this); f1 -> "="
             Variable expression = assertIsSingleton(n.f2.accept(this)); // f2 -> Expression()
 
-            LLVM.Pointer pointer = LLVM.Pointer.from(variable.getType());
+            Pointer pointer = Pointer.from(variable.getType());
 
-            String type = LLVM.Pointer.raw(pointer.base, pointer.degree - 1);
+            String type = Pointer.raw(pointer.base, pointer.degree - 1);
 
             String register = assertMatchingType(expression, type);
 
@@ -770,7 +770,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         try
         {
-            Base base = scope.getGlobal().acquireClass(LLVM.Pointer.from(caller.getType()).base);
+            Base base = scope.getGlobal().acquireClass(Pointer.from(caller.getType()).base);
             // n.f1.accept(this); f1 -> "."
             Pair<Function, Integer> pair = base.acquireFunction(n.f2.f0.toString()); // f2 -> Identifier()
 
@@ -885,7 +885,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     @Override
     public LinkedList<Variable> visit(ThisExpression n)
     {
-        return asSingleton(LLVM.Pointer.raw(scope.getOuter().getIdentifier(), 1), "%.this"); // f0 -> "this"
+        return asSingleton(Pointer.raw(scope.getOuter().getIdentifier(), 1), "%.this"); // f0 -> "this"
     }
 
     @Override
@@ -962,7 +962,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             LLVM.emit("store i8 ** " + i8VTable + ", i8 *** " + i8CastedPointer);
 
-            return asSingleton(LLVM.Pointer.raw(identifier, 1), i8Pointer);
+            return asSingleton(Pointer.raw(identifier, 1), i8Pointer);
         }
         catch (Exception ex)
         {
