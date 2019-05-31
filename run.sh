@@ -39,6 +39,8 @@ then
 
     ./compile.sh --clean
 
+    find . -maxdepth 5 -name "*.llvm" -delete -print
+
     for dataset in "${DATASETS[@]}"
     do
         for label in "${LABELS[@]}"
