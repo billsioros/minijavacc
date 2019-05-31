@@ -68,33 +68,6 @@ public class LLVM
         return "@" + base.getIdentifier() + ".VTable";
     }
 
-    public static String to(Base base)
-    {
-        String llvm = "";
-
-        String className = base.getIdentifier();
-
-        LinkedList<Function> functions = base.getFunctions();
-
-        llvm += VTableOf(base) + " = global [" + functions.size() + " x i8 *]";
-
-        llvm += "\n[";
-
-        for (Function function : functions)
-        {
-            String identifier = function.getIdentifier();
-            String type       = function.getType();
-
-            String[] argtypes = function.getArguementTypes();
-
-            llvm += String.format("\ni8 * bitcast (%s (%s) %s * to i8 *),", to(type), "@" + className + "." + identifier, to(argtypes));
-        }
-
-        llvm += "\n]";
-
-        return llvm;
-    }
-
     public static void open(String filename)
     {
         Emitter.create(filename);
@@ -108,5 +81,28 @@ public class LLVM
     public static void emit(String llvm)
     {
         Emitter.emit(llvm);
+    }
+
+    public static void emit(Base base)
+    {
+        String className = base.getIdentifier();
+
+        LinkedList<Function> functions = base.getFunctions();
+
+        LLVM.emit(VTableOf(base) + " = global [" + functions.size() + " x i8 *]");
+
+        LLVM.emit("[");
+
+        for (Function function : functions)
+        {
+            String identifier = function.getIdentifier();
+            String type       = function.getType();
+
+            String[] argtypes = function.getArguementTypes();
+
+            LLVM.emit(String.format("i8 * bitcast (%s (%s) %s * to i8 *),", to(type), "@" + className + "." + identifier, to(argtypes)));
+        }
+
+        LLVM.emit("]");
     }
 }

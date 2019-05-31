@@ -263,7 +263,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             // n.f0.accept(this); f0 -> "class"
             Base base = scope.acquireClass(n.f1.f0.toString()); // f1 -> Identifier()
 
-            LLVM.emit(LLVM.to(base));
+            LLVM.emit(base);
 
             scope.push(base);
 
@@ -290,7 +290,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             // n.f0.accept(this); f0 -> "class"
             Base base = scope.acquireClass(n.f1.f0.toString()); // f1 -> Identifier()
 
-            LLVM.emit(LLVM.to(base));
+            LLVM.emit(base);
 
             scope.push(base);
 
