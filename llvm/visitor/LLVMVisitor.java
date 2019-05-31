@@ -574,9 +574,9 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
         String identifier = expression.getIdentifier();
 
         if (type.startsWith("i1"))
-            LLVM.emit("call void @print_boolean(i1 " + assertMatchingType(expression, "i1") + ")");
+            LLVM.emit("call void @print_i1(i1 " + assertMatchingType(expression, "i1") + ")");
         else if (type.startsWith("i32"))
-            LLVM.emit("call void @print_int(i32 " + assertMatchingType(expression, "i32") + ")");
+            LLVM.emit("call void @print_i32(i32 " + assertMatchingType(expression, "i32") + ")");
         else
             throw new UnrecoverableError("'" + identifier + "' is of type '" + type + "'");
 
