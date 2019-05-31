@@ -9,6 +9,8 @@ import semantic.error.*;
 
 import llvm.visitor.*;
 
+import llvm.detail.*;
+
 import syntaxtree.*;
 
 import java.io.*;
@@ -61,7 +63,11 @@ class Main
                     continue;
                 }
 
+                LLVM.open(filename);
+
                 goal.accept(llvmVisitor);
+
+                LLVM.close();
 
                 if (Options.PRINT_PROGRAM_STRUCTURE)
                     System.out.println(structure);

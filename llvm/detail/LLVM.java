@@ -95,8 +95,18 @@ public class LLVM
         return llvm;
     }
 
+    public static void open(String filename)
+    {
+        Emitter.create(filename);
+    }
+
+    public static void close()
+    {
+        Emitter.destroy();
+    }
+
     public static void emit(String llvm)
     {
-        System.out.println(llvm);
+        Emitter.emit(llvm);
     }
 }
