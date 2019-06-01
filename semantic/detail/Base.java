@@ -35,14 +35,9 @@ public class Base implements Context
         return identifier;
     }
 
-    public int variableCount()
-    {
-        return variables.getOffset();
-    }
-
     public int functionCount()
     {
-        return functions.getOffset();
+        return functions.size();
     }
 
     public boolean isSubclassOf(Base base)

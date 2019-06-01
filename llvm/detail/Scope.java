@@ -7,6 +7,8 @@ import utility.*;
 
 import error.*;
 
+import java.util.*;
+
 public class Scope extends semantic.detail.Scope
 {
     private static final long serialVersionUID = 1L;
@@ -25,7 +27,7 @@ public class Scope extends semantic.detail.Scope
         {
             Variable variable = getLocal().acquireVariable(identifier).first;
 
-            type = LLVM.to(variable.getType()) + " *";
+            type = LLVM.to(variable.getType()) + "*";
 
             identifier = "%" + variable.getIdentifier();
 
@@ -38,15 +40,15 @@ public class Scope extends semantic.detail.Scope
             {
                 Pair<Variable, Integer> pair = getOuter().acquireVariable(identifier);
 
-                type = LLVM.to(pair.first.getType()) + " *";
+                type = LLVM.to(pair.first.getType()) + "*";
 
-                identifier = "%" + pair.first.getIdentifier();
+                identifier = LLVM.getRegister();
 
                 String i8Pointer = LLVM.getRegister();
 
-                LLVM.emit(i8Pointer + " = getelementptr i8, i8 * %.this, i32 " + pair.second);
+                LLVM.emit(i8Pointer + " = getelementptr i8, i8* %.this, i32 " + pair.second);
 
-                LLVM.emit(identifier + " = bitcast i8 * " + i8Pointer + " to " + type);
+                LLVM.emit(identifier + " = bitcast i8* " + i8Pointer + " to " + type);
 
                 if (type.startsWith("i8"))
                     type = Pointer.raw(pair.first.getType(), Pointer.from(type).degree);
@@ -63,31 +65,46 @@ public class Scope extends semantic.detail.Scope
     @Override
     public Function acquireFunction(String identifier)
     {
+        String[] elements = identifier.split("\\s+");
+
+        if (elements.length != 2)
+            throw new UnrecoverableError("Identifier '" + identifier + "' consists of " + elements.length + " tokens instead of 2");
+
         try
         {
-            Pair<Function, Integer> pair = getLocal().acquireFunction(identifier);
+            Context local = getLocal();
+
+            Pair<Function, Integer> pair = local.acquireFunction(elements[1]);
 
             String i8CastedVTable = LLVM.getRegister();
 
-            LLVM.emit(i8CastedVTable + " = bitcast i8 * " + identifier + " to i8 ***");
+            LLVM.emit(i8CastedVTable + " = bitcast i8* " + elements[0] + " to i8***");
 
             String i8LoadPointer = LLVM.getRegister();
 
-            LLVM.emit(i8LoadPointer + " = load i8 **, i8 *** " + i8CastedVTable);
+            LLVM.emit(i8LoadPointer + " = load i8**, i8*** " + i8CastedVTable);
 
             String i8FunctionPointer = LLVM.getRegister();
 
-            LLVM.emit(i8FunctionPointer + " = getelementptr i8 *, i8 ** " + i8LoadPointer + ", i32 " + pair.second);
+            LLVM.emit(i8FunctionPointer + " = getelementptr i8*, i8** " + i8LoadPointer + ", i32 " + pair.second);
 
             String i8LoadFunctionPointer = LLVM.getRegister();
 
-            LLVM.emit(i8LoadFunctionPointer + " = load i8 *, i8 ** " + i8FunctionPointer);
+            LLVM.emit(i8LoadFunctionPointer + " = load i8*, i8** " + i8FunctionPointer);
 
             String functionPointer = LLVM.getRegister();
 
-            LLVM.emit(functionPointer + " = bitcast i8 * " + i8FunctionPointer + " to " + LLVM.to(pair.first));
+            LLVM.emit(functionPointer + " = bitcast i8* " + i8LoadFunctionPointer + " to " + LLVM.to(pair.first));
 
-            return new Function(pair.first.getType(), functionPointer, null);
+            LinkedList<Variable> args = pair.first.getArguements();
+
+            String arguements = "i8* %.this";
+
+            if (args != null)
+                for (Variable arg : args)
+                    arguements += ", " + LLVM.to(arg.getType()) + " %." + arg.getIdentifier();
+
+            return new Function(pair.first.getType(), functionPointer, arguements);
         }
         catch (Exception ex)
         {

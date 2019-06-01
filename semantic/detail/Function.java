@@ -79,6 +79,19 @@ public class Function extends Variable implements Context
         return true;
     }
 
+    public LinkedList<Variable> getArguements()
+    {
+        if (arguements == null)
+            return null;
+
+        LinkedList<Variable> args = new LinkedList<Variable>();
+
+        for (Map.Entry<String, String> entry : arguements.entrySet())
+            args.push(new Variable(entry.getValue(), entry.getKey()));
+
+        return args;
+    }
+
     public String[] getArguementTypes()
     {
         return arguements == null ? null : arguements.values().toArray(new String[0]);

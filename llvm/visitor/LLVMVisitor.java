@@ -283,7 +283,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     @Override
     public LinkedList<Variable> visit(VarDeclaration n)
     {
-        String type       = LLVM.to(assertIsSingleton(n.f1.accept(this)).getType()); // f0 -> Type()
+        String type       = LLVM.to(assertIsSingleton(n.f0.accept(this)).getType()); // f0 -> Type()
         String identifier = "%" + n.f1.f0.toString(); // f1 -> Identifier()
         // n.f2.accept(this); f2 -> ";"
 
@@ -307,12 +307,17 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             parameters = n.f4.accept(this); // f4 -> ( FormalParameterList() )?
         // n.f5.accept(this); f5 -> ")"
 
-        String parametersString = "i8 * %.this";
+        String parametersString = "i8* %.this";
         if (parameters != null)
-            parametersString += ", " + LLVM.to(parameters);
+            parametersString += LLVM.to(parameters);
 
         LLVM.emit("define " + type + " @" + local.getIdentifier() + "." + identifier + "(" + parametersString + ")");
         // n.f6.accept(this); f6 -> "{"
+        LLVM.emit("{");
+
+        if (parameters != null)
+            for (Variable parameter : parameters)
+                LLVM.emit(parameter.getIdentifier().replace(".", "") + " = alloca " + parameter.getType());
 
         try
         {
@@ -322,8 +327,6 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
         {
             throw new UnrecoverableError(ex.getMessage());
         }
-
-        LLVM.emit("{");
 
         if (n.f7.present())
             n.f7.accept(this); // f7 -> ( VarDeclaration() )*
@@ -365,7 +368,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     @Override
     public LinkedList<Variable> visit(FormalParameter n)
     {
-        String type       = LLVM.to(assertIsSingleton(n.f1.accept(this)).getType()); // f0 -> Type()
+        String type       = LLVM.to(assertIsSingleton(n.f0.accept(this)).getType()); // f0 -> Type()
         String identifier = n.f1.f0.toString(); // f1 -> Identifier()
 
         return asSingleton(type, "%." + identifier);
@@ -420,11 +423,11 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             Pointer pointer = Pointer.from(variable.getType());
 
-            String type = Pointer.raw(pointer.base, pointer.degree - 1);
+            String type = Pointer.raw(pointer.base.matches("(i32|i8|i1).*") ? pointer.base : "i8", pointer.degree - 1);
 
             String register = assertMatchingType(expression, type);
 
-            LLVM.emit("store " + type + " " + register + ", " + variable.getType() + " " + variable.getIdentifier());
+            LLVM.emit("store " + type + " " + register + ", " + type + "*" + variable.getIdentifier());
             // n.f3.accept(this); f3 -> ";"
 
             LLVM.emit("");
@@ -444,7 +447,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
         {
             Variable array = scope.acquireVariable(n.f0.f0.toString()); // f0 -> Identifier()
 
-            String i32Array = assertMatchingType(array, "i32 *");
+            String i32Array = assertMatchingType(array, "i32*");
 
             // n.f1.accept(this); f1 -> "["
             Variable index = assertIsSingleton(n.f2.accept(this)); // f2 -> Expression()
@@ -457,7 +460,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             String i32Pointer = LLVM.getRegister();
 
-            LLVM.emit(i32Pointer + " = getelementptr i32, i32 * " + i32Array + ", i32 " + i32AugmentedIndex);
+            LLVM.emit(i32Pointer + " = getelementptr i32, i32* " + i32Array + ", i32 " + i32AugmentedIndex);
             // n.f3.accept(this); f3 -> "]"
 
             // n.f4.accept(this); f4 -> "="
@@ -465,7 +468,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             String i32Value = assertMatchingType(value, "i32");
 
-            LLVM.emit("store i32 " + i32Value + ", i32 * " + i32Pointer);
+            LLVM.emit("store i32 " + i32Value + ", i32* " + i32Pointer);
             // n.f6.accept(this); f6 -> ";"
 
             LLVM.emit("");
@@ -481,7 +484,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     @Override
     public LinkedList<Variable> visit(IfStatement n)
     {
-        String labelIf = LLVM.getLabel(), labelElse = LLVM.getLabel();
+        String labelIf = LLVM.getLabel(), labelElse = LLVM.getLabel(), labelEnd = LLVM.getLabel();
 
         // n.f0.accept(this); f0 -> "if"
         // n.f1.accept(this); f1 -> "("
@@ -496,11 +499,17 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         n.f4.accept(this); // f4 -> Statement()
 
+        LLVM.emit("br label %" + labelEnd);
+
         // n.f5.accept(this); f5 -> "else"
 
         LLVM.emit(labelElse + ":");
 
         n.f6.accept(this); // f6 -> Statement()
+
+        LLVM.emit("br label %" + labelEnd);
+
+        LLVM.emit(labelEnd + ":");
 
         return null;
     }
@@ -575,21 +584,27 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         // n.f1.accept(this); f1 -> "&&"
 
-        String label0 = LLVM.getLabel(), label1 = LLVM.getLabel();
+        String labelFalse = LLVM.getLabel(), labelTrue = LLVM.getLabel(), labelEnd = LLVM.getLabel();
 
-        LLVM.emit("br i1 " + i1LFlag + ", label %" + label1 + ", label %" + label0);
+        LLVM.emit("br i1 " + i1LFlag + ", label %" + labelTrue + ", label %" + labelFalse);
 
-        LLVM.emit(label1 + ":");
+        LLVM.emit(labelTrue + ":");
 
         Variable rhs = assertIsSingleton(n.f2.accept(this)); // f2 -> PrimaryExpression()
 
         String i1RFlag = assertMatchingType(rhs, "i1");
 
-        LLVM.emit(label0 + ":");
+        LLVM.emit("br label %" + labelEnd);
+
+        LLVM.emit(labelFalse + ":");
 
         String i1Result = LLVM.getRegister();
 
-        LLVM.emit(i1Result + " = phi i1 [" + i1LFlag + ", %" + label0 + "], [" + i1RFlag + ", %" + label1 + "]");
+        LLVM.emit("br label %" + labelEnd);
+
+        LLVM.emit(labelEnd + ":");
+
+        LLVM.emit(i1Result + " = phi i1 [" + i1LFlag + ", %" + labelFalse + "], [" + i1RFlag + ", %" + labelTrue + "]");
 
         return asSingleton("i1", i1Result);
     }
@@ -675,7 +690,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     {
         Variable array = assertIsSingleton(n.f0.accept(this)); // f0 -> PrimaryExpression()
 
-        String i32Array = assertMatchingType(array, "i32 *");
+        String i32Array = assertMatchingType(array, "i32*");
 
         // n.f1.accept(this); f1 -> "["
         Variable index = assertIsSingleton(n.f2.accept(this)); // f2 -> PrimaryExpression()
@@ -685,25 +700,27 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         String i32LengthPointer = LLVM.getRegister();
 
-        LLVM.emit(i32LengthPointer + " = getelementptr i32, i32 * " + i32Array + ", i32 0");
+        LLVM.emit(i32LengthPointer + " = getelementptr i32, i32* " + i32Array + ", i32 0");
 
         String i32Length = LLVM.getRegister();
 
-        LLVM.emit(i32Length + " = load i32, i32 * " + i32LengthPointer);
+        LLVM.emit(i32Length + " = load i32, i32* " + i32LengthPointer);
 
         String i1OutOfBounds = LLVM.getRegister();
 
         LLVM.emit(i1OutOfBounds + " = icmp ule i32 " + i32Length + ", " + i32Index);
 
-        String label0 = LLVM.getLabel(), label1 = LLVM.getLabel();
+        String labelFalse = LLVM.getLabel(), labelTrue = LLVM.getLabel();
 
-        LLVM.emit("br i1 " + i1OutOfBounds + ", label %" + label1 + ", label %" + label0);
+        LLVM.emit("br i1 " + i1OutOfBounds + ", label %" + labelTrue + ", label %" + labelFalse);
 
-        LLVM.emit(label1 + ":");
+        LLVM.emit(labelTrue + ":");
 
         LLVM.emit("call void @throw_oob()");
 
-        LLVM.emit(label0 + ":");
+        LLVM.emit("br label %" + labelFalse);
+
+        LLVM.emit(labelFalse + ":");
 
         String i32AugmentedIndex = LLVM.getRegister();
 
@@ -711,9 +728,9 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         String i32ValuePointer = LLVM.getRegister();
 
-        LLVM.emit(i32ValuePointer + " = getelementptr i32, i32 * " + i32Array + ", i32 " + i32AugmentedIndex);
+        LLVM.emit(i32ValuePointer + " = getelementptr i32, i32* " + i32Array + ", i32 " + i32AugmentedIndex);
 
-        return asSingleton("i32 *", i32ValuePointer);
+        return asSingleton("i32*", i32ValuePointer);
     }
 
     @Override
@@ -721,17 +738,17 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     {
         Variable pexpression = assertIsSingleton(n.f0.accept(this)); // f0 -> PrimaryExpression()
 
-        String i32Array = assertMatchingType(pexpression, "i32 *");
+        String i32Array = assertMatchingType(pexpression, "i32*");
 
         // n.f1.accept(this); f1 -> "."
         String i32LengthPointer = LLVM.getRegister();
 
-        LLVM.emit(i32LengthPointer + " = getelementptr i32, i32 * " + i32Array + ", i32 0");
+        LLVM.emit(i32LengthPointer + " = getelementptr i32, i32* " + i32Array + ", i32 0");
 
         // n.f2.accept(this); f2 -> "length"
         String i32Length = LLVM.getRegister();
 
-        LLVM.emit(i32Length + " = load i32, i32 * " + i32LengthPointer);
+        LLVM.emit(i32Length + " = load i32, i32* " + i32LengthPointer);
 
         return asSingleton("i32", i32Length);
     }
@@ -741,7 +758,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     {
         Variable caller = assertIsSingleton(n.f0.accept(this)); // f0 -> PrimaryExpression()
 
-        String identifier = assertMatchingType(caller, "i8 *");
+        String identifier = assertMatchingType(caller, "i8*");
 
         try
         {
@@ -750,24 +767,30 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             scope.push(base);
 
             // n.f1.accept(this); f1 -> "."
-            Function function = scope.acquireFunction(n.f2.f0.toString()); // f2 -> Identifier()
+            Function function = scope.acquireFunction(identifier + " " + n.f2.f0.toString()); // f2 -> Identifier()
 
             scope.pop();
 
-            String arguements = "i8 * " + identifier;
-
             // n.f3.accept(this); f3 -> "("
+            LinkedList<Variable> arguements = asSingleton("i8* ", identifier);
             if (n.f4.present())
-                arguements += ", " + LLVM.to(n.f4.accept(this)); // f4 -> ( ExpressionList() )?
+                arguements.addAll(n.f4.accept(this)); // f4 -> ( ExpressionList() )?
             // n.f5.accept(this); f5 -> ")"
+
+            String arguementsString = "";
+
+            String[] argtypes = function.getArguementTypes();
+
+            for (int i = 0; i < argtypes.length; i++)
+                arguementsString += argtypes[i] + " " + assertMatchingType(arguements.get(i), argtypes[i]) + (i < argtypes.length - 1 ? ", " : "");
 
             String register = LLVM.getRegister();
 
             String type = function.getType(), llvm_type = LLVM.to(type);
 
-            LLVM.emit(register + " = call " + llvm_type + " " + function.getIdentifier() + "(" + arguements + ")");
+            LLVM.emit(register + " = call " + llvm_type + " " + function.getIdentifier() + "(" + arguementsString + ")");
 
-            return asSingleton(llvm_type.equals("i8 *") ? type + " *" : llvm_type, register);
+            return asSingleton(llvm_type.equals("i8*") ? type + "*" : llvm_type, register);
         }
         catch (Exception ex)
         {
@@ -861,17 +884,19 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         String i1OutOfBounds = LLVM.getRegister();
 
-        String label0 = LLVM.getLabel(), label1 = LLVM.getLabel();
+        String labelFalse = LLVM.getLabel(), labelTrue = LLVM.getLabel();
 
         LLVM.emit(i1OutOfBounds + " = icmp sle i32 " + i32Length + ", i32 0");
 
-        LLVM.emit("br i1 " + i1OutOfBounds + ", label %" + label1 + ", label %" + label0);
+        LLVM.emit("br i1 " + i1OutOfBounds + ", label %" + labelTrue + ", label %" + labelFalse);
 
-        LLVM.emit(label1 + ":");
+        LLVM.emit(labelTrue + ":");
 
         LLVM.emit("call void @throw_oob()");
 
-        LLVM.emit(label0 + ":");
+        LLVM.emit("br label %" + labelFalse);
+
+        LLVM.emit(labelFalse + ":");
 
         String i32AugmentedSize = LLVM.getRegister();
 
@@ -879,19 +904,19 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         String i8Array = LLVM.getRegister();
 
-        LLVM.emit(i8Array + " = call i8 * @calloc(i32 4, i32 " + i32AugmentedSize + ")");
+        LLVM.emit(i8Array + " = call i8* @calloc(i32 4, i32 " + i32AugmentedSize + ")");
 
         String i32Array = LLVM.getRegister();
 
-        LLVM.emit(i32Array + " = bitcast i8 * " + i8Array + " to i32 *");
+        LLVM.emit(i32Array + " = bitcast i8* " + i8Array + " to i32*");
 
         String i32LengthPointer = LLVM.getRegister();
 
-        LLVM.emit(i32LengthPointer + " = getelementptr i32, i32 * " + i32Array + ", i32 0");
+        LLVM.emit(i32LengthPointer + " = getelementptr i32, i32* " + i32Array + ", i32 0");
 
-        LLVM.emit("store i32 " + i32Length + ", i32 * " + i32LengthPointer);
+        LLVM.emit("store i32 " + i32Length + ", i32* " + i32LengthPointer);
 
-        return asSingleton("i32 *", i32Array);
+        return asSingleton("i32*", i32Array);
     }
 
     @Override
@@ -912,15 +937,15 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             String i8CastedPointer = LLVM.getRegister();
 
-            LLVM.emit(i8CastedPointer + " = bitcast i8 * " + i8Pointer + " to i8 ***");
+            LLVM.emit(i8CastedPointer + " = bitcast i8* " + i8Pointer + " to i8***");
 
             String i8VTable = LLVM.getRegister();
 
             int size = base.functionCount();
 
-            LLVM.emit(i8VTable + " = getelementptr [" + size + " x i8 *], [" + size + " x i8 *] * " + LLVM.VTableOf(base) + ", i32 0, i32 0");
+            LLVM.emit(i8VTable + " = getelementptr [" + size + " x i8*], [" + size + " x i8*]* " + LLVM.VTableOf(base) + ", i32 0, i32 0");
 
-            LLVM.emit("store i8 ** " + i8VTable + ", i8 *** " + i8CastedPointer);
+            LLVM.emit("store i8** " + i8VTable + ", i8*** " + i8CastedPointer);
 
             return asSingleton(Pointer.raw(identifier, 1), i8Pointer);
         }

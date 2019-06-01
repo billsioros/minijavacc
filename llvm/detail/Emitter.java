@@ -17,8 +17,8 @@ class Emitter extends PrintWriter
 
         instance = this;
 
-        emit("declare i8 * @calloc(i32, i32)");
-        emit("declare i32 @printf(i8 *, ...)");
+        emit("declare i8* @calloc(i32, i32)");
+        emit("declare i32 @printf(i8*, ...)");
         emit("declare void @exit(i32)");
 
         emit("@_i32fmt = constant [4 x i8] c\"%d\\0a\\00\"");
@@ -30,8 +30,8 @@ class Emitter extends PrintWriter
 
         emit("define void @print_i32(i32 %var)");
         emit("{");
-        emit("%_str = bitcast [4 x i8] * @_i32fmt to i8 *");
-        emit("call i32 (i8 *, ...) @printf(i8 * %_str, i32 %var)");
+        emit("%_str = bitcast [4 x i8]* @_i32fmt to i8*");
+        emit("call i32 (i8*, ...) @printf(i8* %_str, i32 %var)");
         emit("ret void");
         emit("}");
 
@@ -40,20 +40,23 @@ class Emitter extends PrintWriter
         emit("br i1 %var, label %isTrue, label %isFalse");
         emit("");
         emit("isTrue:");
-        emit("%_true_str = bitcast [15 x i8] * @_true to i8 *");
+        emit("%_true_str = bitcast [6 x i8]* @_true to i8*");
+        emit("br label %isDone");
         emit("");
         emit("isFalse:");
-        emit("%_false_str = bitcast [15 x i8] * @_false to i8 *");
+        emit("%_false_str = bitcast [7 x i8]* @_false to i8*");
+        emit("br label %isDone");
         emit("");
-        emit("%_str = phi i8 * [%_true_str, %isTrue], [%_false_str, %isFalse]");
-        emit("call i32 (i8 *, ...) @printf(i8 * %_str)");
+        emit("isDone:");
+        emit("%_str = phi i8* [%_true_str, %isTrue], [%_false_str, %isFalse]");
+        emit("call i32 (i8*, ...) @printf(i8* %_str)");
         emit("ret void");
         emit("}");
 
         emit("define void @throw_oob()");
         emit("{");
-        emit("%_str = bitcast [15 x i8] * @_oob_exception to i8 *");
-        emit("call i32 (i8 *, ...) @printf(i8 * %_str)");
+        emit("%_str = bitcast [15 x i8]* @_oob_exception to i8*");
+        emit("call i32 (i8*, ...) @printf(i8* %_str)");
         emit("call void @exit(i32 1)");
         emit("ret void");
         emit("}");
@@ -115,7 +118,7 @@ class Emitter extends PrintWriter
             instance.println("\n\t" + string);
         else if (string.matches("(\\{|\\[).*"))
             instance.println(string);
-        else if (string.matches("(declare|\\}|\\]).*"))
+        else if (string.matches("(declare|\\}|\\]|.*:).*"))
             instance.println(string + "\n");
         else
             instance.println("\t" + string);

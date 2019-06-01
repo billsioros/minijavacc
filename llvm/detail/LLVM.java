@@ -21,12 +21,15 @@ public class LLVM
 
     public static String to(String type)
     {
+        if (type.matches("(i32|i8|i1).*"))
+            return type;
+
         switch (type)
         {
             case "int":     type = "i32";   break;
-            case "int[]":   type = "i32 *"; break;
+            case "int[]":   type = "i32*"; break;
             case "boolean": type = "i1";    break;
-            default:        type = "i8 *";  break;
+            default:        type = "i8*";  break;
         }
 
         return type;
@@ -34,7 +37,7 @@ public class LLVM
 
     public static String to(String[] types)
     {
-        String llvm = "i8 *";
+        String llvm = "i8*";
 
         if (types != null)
             for (String type : types)
@@ -49,7 +52,7 @@ public class LLVM
 
         if (variables != null)
             for (Variable variable : variables)
-                llvm += ", " + variable.getType() + " " + variable.getIdentifier();
+                llvm += ", " + to(variable.getType()) + " " + variable.getIdentifier();
 
         return llvm;
     }
@@ -60,7 +63,7 @@ public class LLVM
 
         String[] argtypes = function.getArguementTypes();
 
-        return String.format("%s (%s) *", to(type), to(argtypes));
+        return String.format("%s (%s)*", to(type), to(argtypes));
     }
 
     public static String VTableOf(Base base)
@@ -89,7 +92,7 @@ public class LLVM
 
         LinkedList<Function> functions = base.getFunctions();
 
-        LLVM.emit(VTableOf(base) + " = global [" + functions.size() + " x i8 *]");
+        LLVM.emit(VTableOf(base) + " = global [" + functions.size() + " x i8*]");
 
         LLVM.emit("[");
 
@@ -100,7 +103,7 @@ public class LLVM
 
             String[] argtypes = function.getArguementTypes();
 
-            LLVM.emit(String.format("i8 * bitcast (%s (%s) %s * to i8 *),", to(type), "@" + className + "." + identifier, to(argtypes)));
+            LLVM.emit(String.format("i8* bitcast (%s (%s)* %s to i8*)" + (function != functions.getLast() ? "," : ""), to(type), to(argtypes), "@" + className + "." + identifier));
         }
 
         LLVM.emit("]");

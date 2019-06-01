@@ -34,7 +34,7 @@ public class Pointer
 
     public static String raw(Pointer pointer)
     {
-        String raw = pointer.base + " ";
+        String raw = pointer.base;
 
         for (int i = 0; i < pointer.degree; ++i)
             raw += '*';
@@ -54,7 +54,7 @@ public class Pointer
 
         String[] elements =
         {
-            raw.substring(0, pivot - 1).trim(),
+            raw.substring(0, pivot).replace(" ", ""),
             raw.substring(pivot, raw.length()).replace(" ", "")
         };
 

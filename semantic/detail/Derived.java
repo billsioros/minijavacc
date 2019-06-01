@@ -19,12 +19,6 @@ public class Derived extends Base
     }
 
     @Override
-    public int variableCount()
-    {
-        return variables.size() + base.variableCount();
-    }
-
-    @Override
     public int functionCount()
     {
         return functions.size() + base.functionCount();
