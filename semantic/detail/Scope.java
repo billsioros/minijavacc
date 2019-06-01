@@ -3,8 +3,6 @@ package semantic.detail;
 
 import error.*;
 
-import utility.*;
-
 import java.util.*;
 
 public class Scope extends Stack<Context>
@@ -74,17 +72,17 @@ public class Scope extends Stack<Context>
         return (Global)context;
     }
 
-    public Pair<Variable, Integer> acquireVariable(String identifier) throws Exception, UnrecoverableError
+    public Variable acquireVariable(String identifier) throws Exception, UnrecoverableError
     {
         try
         {
-            return getLocal().acquireVariable(identifier);
+            return getLocal().acquireVariable(identifier).first;
         }
         catch (Exception ex)
         {
             try
             {
-                return getOuter().acquireVariable(identifier);
+                return getOuter().acquireVariable(identifier).first;
             }
             catch (Exception ignore)
             {
@@ -98,9 +96,9 @@ public class Scope extends Stack<Context>
         getLocal().register(variable);
     }
 
-    public Pair<Function, Integer> acquireFunction(String identifier) throws Exception, UnrecoverableError
+    public Function acquireFunction(String identifier) throws Exception, UnrecoverableError
     {
-        return getLocal().acquireFunction(identifier);
+        return getLocal().acquireFunction(identifier).first;
     }
 
     public final void register(Function function) throws Exception, UnrecoverableError

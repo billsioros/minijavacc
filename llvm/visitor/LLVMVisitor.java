@@ -17,7 +17,7 @@ import java.util.*;
 
 public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 {
-    private Scope scope;
+    private llvm.detail.Scope scope;
 
     private LinkedList<Variable> asSingleton(String singleton)
     {
@@ -86,39 +86,9 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
         return identifier;
     }
 
-    private Variable getVariable(String identifier)
-    {
-        try
-        {
-            Pair<Variable, Integer> pair = scope.acquireVariable(identifier);
-
-            String type = LLVM.to(pair.first.getType()) + " *";
-
-            identifier = "%" + pair.first.getIdentifier();
-
-            if (pair.second >= 0)
-            {
-                String i8Pointer = LLVM.getRegister();
-
-                LLVM.emit(i8Pointer + " = getelementptr i8, i8 * %.this, i32 " + pair.second);
-
-                LLVM.emit(identifier + " = bitcast i8 * " + i8Pointer + " to " + type);
-            }
-
-            if (type.startsWith("i8"))
-                type = Pointer.raw(pair.first.getType(), Pointer.from(type).degree);
-
-            return new Variable(type, identifier);
-        }
-        catch (Exception ex)
-        {
-            throw new UnrecoverableError(ex.getMessage());
-        }
-    }
-
     public LLVMVisitor(Global global)
     {
-        this.scope = new Scope(global);
+        this.scope = new llvm.detail.Scope(global);
     }
 
     @Override
@@ -327,7 +297,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     @Override
     public LinkedList<Variable> visit(MethodDeclaration n)
     {
-        String local = scope.getLocal().getIdentifier();
+        Context local = scope.getLocal();
 
         // n.f0.accept(this); f0 -> "public"
         String type       = LLVM.to(assertIsSingleton(n.f1.accept(this)).getType()); // f1 -> Type()
@@ -343,12 +313,12 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
         if (parameters != null)
             parametersString += ", " + LLVM.to(parameters);
 
-        LLVM.emit("define " + type + " @" + local + "." + identifier + "(" + parametersString + ")");
+        LLVM.emit("define " + type + " @" + local.getIdentifier() + "." + identifier + "(" + parametersString + ")");
         // n.f6.accept(this); f6 -> "{"
 
         try
         {
-            scope.push(scope.acquireFunction(identifier).first);
+            scope.push(local.acquireFunction(identifier).first);
         }
         catch (Exception ex)
         {
@@ -445,7 +415,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     {
         try
         {
-            Variable variable = getVariable(n.f0.f0.toString()); // f0 -> Identifier()
+            Variable variable = scope.acquireVariable(n.f0.f0.toString()); // f0 -> Identifier()
 
             // n.f1.accept(this); f1 -> "="
             Variable expression = assertIsSingleton(n.f2.accept(this)); // f2 -> Expression()
@@ -474,7 +444,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     {
         try
         {
-            Variable array = getVariable(n.f0.f0.toString()); // f0 -> Identifier()
+            Variable array = scope.acquireVariable(n.f0.f0.toString()); // f0 -> Identifier()
 
             String i32Array = assertMatchingType(array, "i32 *");
 
@@ -595,7 +565,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     {
         Variable expression = assertIsSingleton(n.f0.accept(this)); // f0 -> AndExpression()
 
-        return asSingleton(expression.getIdentifier() == null ? getVariable(expression.getType()) : expression);
+        return asSingleton(expression.getIdentifier() == null ? scope.acquireVariable(expression.getType()) : expression);
     }
 
     @Override
@@ -778,8 +748,13 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
         try
         {
             Base base = scope.getGlobal().acquireClass(Pointer.from(caller.getType()).base);
+
+            scope.push(base);
+
             // n.f1.accept(this); f1 -> "."
-            Pair<Function, Integer> pair = base.acquireFunction(n.f2.f0.toString()); // f2 -> Identifier()
+            Function function = scope.acquireFunction(n.f2.f0.toString()); // f2 -> Identifier()
+
+            scope.pop();
 
             String arguements = "i8 * " + identifier;
 
@@ -788,31 +763,11 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
                 arguements += ", " + LLVM.to(n.f4.accept(this)); // f4 -> ( ExpressionList() )?
             // n.f5.accept(this); f5 -> ")"
 
-            String i8CastedPointer = LLVM.getRegister();
-
-            LLVM.emit(i8CastedPointer + " = bitcast i8 * " + identifier + " to i8 ***");
-
-            String i8LoadPointer = LLVM.getRegister();
-
-            LLVM.emit(i8LoadPointer + " = load i8 **, i8 *** " + i8CastedPointer);
-
-            String i8FunctionPointer = LLVM.getRegister();
-
-            LLVM.emit(i8FunctionPointer + " = getelementptr i8 *, i8 ** " + i8LoadPointer + ", i32 " + pair.second);
-
-            String i8LoadFunctionPointer = LLVM.getRegister();
-
-            LLVM.emit(i8LoadFunctionPointer + " = load i8 *, i8 ** " + i8FunctionPointer);
-
-            String functionPointer = LLVM.getRegister();
-
-            LLVM.emit(functionPointer + " = bitcast i8 * " + i8FunctionPointer + " to " + LLVM.to(pair.first));
-
             String register = LLVM.getRegister();
 
-            String type = pair.first.getType(), llvm_type = LLVM.to(type);
+            String type = function.getType(), llvm_type = LLVM.to(type);
 
-            LLVM.emit(register + " = call " + llvm_type + " " + functionPointer + "(" + arguements + ")");
+            LLVM.emit(register + " = call " + llvm_type + " " + function.getIdentifier() + "(" + arguements + ")");
 
             return asSingleton(llvm_type.equals("i8 *") ? type + " *" : llvm_type, register);
         }
@@ -868,7 +823,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     {
         Variable pexpression = assertIsSingleton(n.f0.accept(this)); // f0 -> IntegerLiteral()
 
-        return asSingleton(pexpression.getIdentifier() == null ? getVariable(pexpression.getType()) : pexpression);
+        return asSingleton(pexpression.getIdentifier() == null ? scope.acquireVariable(pexpression.getType()) : pexpression);
     }
 
     @Override

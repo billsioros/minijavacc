@@ -28,7 +28,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         this.global = global;
     }
 
-    public void visit(Pending pending) 
+    public void visit(Pending pending)
     {
         if (pending == null)
             throw new UnrecoverableError("StatementVisitor.visit.pending is null");
@@ -44,17 +44,17 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
             return n.elementAt(0).accept(this, scope);
 
         String str = "";
-        
+
         for (Enumeration<Node> e = n.elements(); e.hasMoreElements();)
         {
             String current = e.nextElement().accept(this, scope);
 
             str += current != null ? current : "";
         }
-        
+
         return str;
     }
-  
+
     @Override
     public String visit(NodeListOptional n, Scope scope)
     {
@@ -74,16 +74,16 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
 
             return str;
         }
-        
+
         return null;
     }
-  
+
     @Override
     public String visit(NodeOptional n, Scope scope)
     {
         if (n.present())
             return n.node.accept(this, scope);
-        
+
         return null;
     }
 
@@ -95,7 +95,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
 
         String str = "";
 
-        for (Enumeration<Node> e = n.elements(); e.hasMoreElements();) 
+        for (Enumeration<Node> e = n.elements(); e.hasMoreElements();)
         {
             String current = e.nextElement().accept(this, scope);
 
@@ -104,7 +104,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
 
         return str;
     }
-  
+
     @Override
     public String visit(NodeToken n, Scope scope) { return null; }
 
@@ -190,7 +190,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         try
         {
             // f0 -> Identifier()
-            String type1 = scope.acquireVariable(n.f0.f0.toString()).first.getType();
+            String type1 = scope.acquireVariable(n.f0.f0.toString()).getType();
 
             // f1 -> "="
             // f2 -> Expression()
@@ -227,7 +227,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         try
         {
             // f0 -> Identifier()
-            String variableType = scope.acquireVariable(n.f0.f0.toString()).first.getType();
+            String variableType = scope.acquireVariable(n.f0.f0.toString()).getType();
 
             if (!variableType.equals("int[]"))
                 SemanticErrorManager.register(scope, n.f0, "The type of the expression must be an array type but it resolved to '" + variableType);
@@ -504,7 +504,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         {
             String terms = n.f0.accept(this, scope);
 
-            return terms; 
+            return terms;
         }
 
         return "";
@@ -562,7 +562,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
 
         try
         {
-            return scope.acquireVariable(n.f0.toString()).first.getType();
+            return scope.acquireVariable(n.f0.toString()).getType();
         }
         catch (Exception ex)
         {
