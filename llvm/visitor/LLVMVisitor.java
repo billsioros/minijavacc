@@ -5,8 +5,6 @@ import llvm.detail.*;
 
 import semantic.detail.*;
 
-import utility.*;
-
 import error.*;
 
 import visitor.*;
