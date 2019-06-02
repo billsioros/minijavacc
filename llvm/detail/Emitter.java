@@ -155,18 +155,21 @@ class Emitter extends PrintWriter
 
             int size = message.length() + 2;
 
-            comment(message);
             comment("-------------------------------------");
+            comment(message);
 
-            String i8Array = "%_debug" + lineCount;
-            emit(i8Array + String.format(" = alloca [%d x i8]", size));
+            if (Options.EMBED_LOGGING)
+            {
+                String i8Array = "%_debug" + lineCount;
+                emit(i8Array + String.format(" = alloca [%d x i8]", size));
 
-            emit(String.format("store [%d x i8] c\"%s\\0a\\00\", [%d x i8]* %s", size, message, size, i8Array));
+                emit(String.format("store [%d x i8] c\"%s\\0a\\00\", [%d x i8]* %s", size, message, size, i8Array));
 
-            String i8Pointer = "%_debug" + lineCount;
-            emit(i8Pointer + String.format(" = bitcast [%d x i8]* %s to i8*", size, i8Array));
+                String i8Pointer = "%_debug" + lineCount;
+                emit(i8Pointer + String.format(" = bitcast [%d x i8]* %s to i8*", size, i8Array));
 
-            emit(String.format("call i32 (i8*, ...) @printf(i8* bitcast ([9 x i8]* @_dbgfmt to i8*), i32 %d, i8* %s)", lineCount, i8Pointer));
+                emit(String.format("call i32 (i8*, ...) @printf(i8* bitcast ([9 x i8]* @_dbgfmt to i8*), i32 %d, i8* %s)", lineCount, i8Pointer));
+            }
 
             comment("-------------------------------------");
         }
