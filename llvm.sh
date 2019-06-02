@@ -1,11 +1,16 @@
 #!/bin/bash
 
+filename="Factorial.mini"
+
+if [ ! -r "./examples/positive/$filename" ]
+then
+    exit 1
+fi
+
 ./compile.sh --clean
 ./compile.sh
-java Main ./examples/positive/BinaryTree.mini > ./structure
-code ./examples/positive/BinaryTree.mini ./structure ./examples/positive/BinaryTree.ll ./examples/llvm/BinaryTree.llvm
-clang -o binary ./examples/positive/BinaryTree.ll
+java Main ./examples/positive/"$filename" > ./structure
+code ./examples/positive/"$filename" ./structure ./examples/positive/"${filename%.*}".ll ./examples/llvm/"${filename%.*}".llvm
+clang -o binary ./examples/positive/"${filename%.*}".ll
 
-./binary # > ./debug
-
-# code ./debug
+./binary
