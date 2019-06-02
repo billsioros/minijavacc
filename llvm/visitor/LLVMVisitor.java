@@ -457,7 +457,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             String i32AugmentedIndex = LLVM.getRegister();
 
-            LLVM.emit(i32AugmentedIndex + " = add i32 " + i32Index + ", i32 1");
+            LLVM.emit(i32AugmentedIndex + " = add i32 " + i32Index + ", 1");
 
             String i32Pointer = LLVM.getRegister();
 
@@ -781,7 +781,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         String i32AugmentedIndex = LLVM.getRegister();
 
-        LLVM.emit(i32AugmentedIndex + " = add i32 " + i32Index + ", i32 1");
+        LLVM.emit(i32AugmentedIndex + " = add i32 " + i32Index + ", 1");
 
         String i32ValuePointer = LLVM.getRegister();
 
@@ -965,7 +965,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         String i32AugmentedSize = LLVM.getRegister();
 
-        LLVM.emit(i32AugmentedSize + " = add i32 " + i32Length + ", i32 1");
+        LLVM.emit(i32AugmentedSize + " = add i32 " + i32Length + ", 1");
 
         String i8Array = LLVM.getRegister();
 
