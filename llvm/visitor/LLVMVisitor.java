@@ -985,7 +985,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             String i8Pointer = LLVM.getRegister();
 
-            LLVM.emit(i8Pointer + " = call i8* @calloc(i32 1, i32 8)");
+            LLVM.emit(i8Pointer + " = call i8* @calloc(i32 1, i32 " + base.size() + ")");
 
             String i8CastedPointer = LLVM.getRegister();
 

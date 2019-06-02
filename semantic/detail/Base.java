@@ -35,6 +35,11 @@ public class Base implements Context
         return identifier;
     }
 
+    public int size()
+    {
+        return 8 + variables.getOffset();
+    }
+
     public int functionCount()
     {
         return functions.size();
