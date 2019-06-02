@@ -6,6 +6,6 @@ java Main ./examples/positive/BinaryTree.mini > ./structure
 code ./examples/positive/BinaryTree.mini ./structure ./examples/positive/BinaryTree.ll
 clang -o binary ./examples/positive/BinaryTree.ll
 
-./binary > ./debug
+./binary # > ./debug
 
-code ./debug
+# code ./debug
