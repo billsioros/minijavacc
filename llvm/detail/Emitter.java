@@ -142,6 +142,11 @@ class Emitter extends PrintWriter
         }
     }
 
+    public static void comment(String message)
+    {
+        emit("; " + message.trim());
+    }
+
     public static void debug(String message)
     {
         if (Options.DEBUG)
@@ -150,7 +155,7 @@ class Emitter extends PrintWriter
 
             int size = message.length() + 2;
 
-            emit("; <DBG> " + message);
+            comment(message);
 
             String i8Array = "%_debug" + lineCount;
             emit(i8Array + String.format(" = alloca [%d x i8]", size));
@@ -162,7 +167,7 @@ class Emitter extends PrintWriter
 
             emit(String.format("call i32 (i8*, ...) @printf(i8* bitcast ([9 x i8]* @_dbgfmt to i8*), i32 %d, i8* %s)", lineCount, i8Pointer));
 
-            emit("; <DBG> " + message);
+            comment(message);
         }
     }
 }
