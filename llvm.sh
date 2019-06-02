@@ -1,21 +1,30 @@
 #!/bin/bash
 
-filename="LinearSearch.mini"
+DIR="./examples/positive"
 
-if [ ! -r "./examples/positive/$filename" ]
-then
-    exit 1
-fi
+OUT="./IR"
+
+mkdir -p "$OUT"
 
 ./compile.sh --clean
 ./compile.sh
 
-if java Main ./examples/positive/"$filename" > ./structure
-then
-    code ./examples/positive/"$filename" ./structure ./examples/positive/"${filename%.*}".ll ./examples/llvm/"${filename%.*}".llvm
+for file in $(ls "$DIR")
+do
+    name="${file%.*}"
 
-    if clang -o binary ./examples/positive/"${filename%.*}".ll
+    if java Main "$DIR"/"$file" > "$OUT"/"$name".str
     then
-        ./binary
+        mv "$DIR"/"$name".ll "$OUT"/"$name".ll
+
+        if clang -o "$OUT"/"$name".bin "$OUT"/"$name".ll
+        then
+            if ! "$OUT"/"$name".bin
+            then
+                code -w "$OUT"/"$name".ll ./examples/llvm/"$name".llvm "$DIR"/"$file" "$OUT"/"$name".str
+            fi
+        fi
     fi
-fi
+done
+
+rm -rfv "$OUT"
