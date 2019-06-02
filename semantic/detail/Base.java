@@ -26,13 +26,25 @@ public class Base implements Context
     {
         this.identifier = identifier;
 
+        int staticFunctions = 0;
+        for (Pair<Function, Integer> entry : base.functions.values())
+        {
+            if (entry.first.getType().startsWith("static"))
+                staticFunctions++;
+        }
+
         this.variables = new Table<Variable>(base.variables.getOffset());
-        this.functions = new Table<Function>(base.functions.getOffset());
+        this.functions = new Table<Function>(base.functions.getOffset() - staticFunctions * 8);
     }
 
     public String getIdentifier()
     {
         return identifier;
+    }
+
+    public Base getBase()
+    {
+        return null;
     }
 
     public int size()

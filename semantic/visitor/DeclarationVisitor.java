@@ -49,17 +49,17 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
             return n.elementAt(0).accept(this);
 
         String str = "";
-        
+
         for (Enumeration<Node> e = n.elements(); e.hasMoreElements();)
         {
             String current = e.nextElement().accept(this);
 
             str += current != null ? current : "";
         }
-        
+
         return str;
     }
-  
+
     @Override
     public String visit(NodeListOptional n)
     {
@@ -79,16 +79,16 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
 
             return str;
         }
-        
+
         return null;
     }
-  
+
     @Override
     public String visit(NodeOptional n)
     {
         if (n.present())
             return n.node.accept(this);
-        
+
         return null;
     }
 
@@ -100,7 +100,7 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
 
         String str = "";
 
-        for (Enumeration<Node> e = n.elements(); e.hasMoreElements();) 
+        for (Enumeration<Node> e = n.elements(); e.hasMoreElements();)
         {
             String current = e.nextElement().accept(this);
 
@@ -109,7 +109,7 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
 
         return str;
     }
-  
+
     @Override
     public String visit(NodeToken n) { return null; }
 
@@ -155,7 +155,7 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
         // f12 -> ")"
         try
         {
-            scope.push(new Function("void", "main", "? " + n.f11.accept(this)));
+            scope.register(new Function("static void", "main", "? " + n.f11.accept(this)));
         }
         catch (Exception ex)
         {
@@ -326,7 +326,7 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
         // f9 -> "return"
         // f10 -> Expression()
         pending.insert((Scope)scope.clone(), n);
-        
+
         // f11 -> ";"
         // f12 -> "}"
         scope.pop();

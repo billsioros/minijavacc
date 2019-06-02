@@ -90,13 +90,15 @@ public class LLVM
 
     public static void emit(Base base)
     {
+        if (base.getBase() != null)
+            emit(base.getBase());
+
         String className = base.getIdentifier();
 
         LinkedList<Function> functions = base.getFunctions();
 
-        LLVM.emit(VTableOf(base) + " = global [" + functions.size() + " x i8*]");
-
-        LLVM.emit("[");
+        if (base.getBase() != null && functions.size() > 0)
+            emit(", ; " + base.getBase().getIdentifier());
 
         for (Function function : functions)
         {
@@ -107,8 +109,6 @@ public class LLVM
 
             LLVM.emit(String.format("i8* bitcast (%s (%s)* %s to i8*)" + (function != functions.getLast() ? "," : ""), to(type), to(argtypes), "@" + className + "." + identifier));
         }
-
-        LLVM.emit("]");
     }
 
     public static String assertMatchingType(Scope scope, Variable variable, String expected_type)

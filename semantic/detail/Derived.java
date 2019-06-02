@@ -5,8 +5,6 @@ import semantic.options.*;
 
 import utility.*;
 
-import java.util.*;
-
 public class Derived extends Base
 {
     private Base base;
@@ -16,6 +14,12 @@ public class Derived extends Base
         super(identifier, base);
 
         this.base = base;
+    }
+
+    @Override
+    public Base getBase()
+    {
+        return base;
     }
 
     @Override
@@ -89,19 +93,6 @@ public class Derived extends Base
 
         if (other != null && !other.equals(function))
             throw new Exception("Multiple definitions of function '" + key + "' in type '" + this.identifier + "'");
-    }
-
-    @Override
-    public LinkedList<Function> getFunctions()
-    {
-        LinkedList<Function> functions = new LinkedList<Function>();
-
-        functions.addAll(base.getFunctions());
-
-        for (Pair<Function, Integer> pair : this.functions.values())
-            functions.add(pair.first);
-
-        return functions;
     }
 
     @Override

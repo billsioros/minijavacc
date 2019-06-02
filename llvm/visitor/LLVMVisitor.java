@@ -148,7 +148,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             // n.f10.accept(this); f10 -> "]"
             // n.f11.accept(this); // f11 -> Identifier()
             // n.f12.accept(this); f12 -> ")"
-            scope.push(new Function("void", "main", "? " + n.f11.f0.toString()));
+            scope.push(scope.getLocal().acquireFunction("main").first);
 
             LLVM.emit("define i32 @main()");
             // n.f13.accept(this); f13 -> "{"
@@ -193,7 +193,13 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             // n.f0.accept(this); f0 -> "class"
             Base base = scope.acquireClass(n.f1.f0.toString()); // f1 -> Identifier()
 
+            LLVM.emit(LLVM.VTableOf(base) + " = global [" + base.functionCount() + " x i8*]");
+
+            LLVM.emit("[");
+
             LLVM.emit(base);
+
+            LLVM.emit("]");
 
             scope.push(base);
 
@@ -220,7 +226,13 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             // n.f0.accept(this); f0 -> "class"
             Base base = scope.acquireClass(n.f1.f0.toString()); // f1 -> Identifier()
 
+            LLVM.emit(LLVM.VTableOf(base) + " = global [" + base.functionCount() + " x i8*]");
+
+            LLVM.emit("[");
+
             LLVM.emit(base);
+
+            LLVM.emit("]");
 
             scope.push(base);
 

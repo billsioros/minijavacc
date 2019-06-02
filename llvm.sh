@@ -1,5 +1,7 @@
 #!/bin/bash
 
+problematic=0
+
 function test
 {
     DIR="$(dirname "$1")"
@@ -18,6 +20,8 @@ function test
             if ! "$OUT"/"$name".bin
             then
                 code -w "$OUT"/"$name".ll ./examples/llvm/"$name".llvm "$DIR"/"$name".mini "$OUT"/"$name".str
+
+                ((problematic++))
             fi
 
             return
@@ -25,6 +29,8 @@ function test
     fi
 
     read -n1 -r -p "Press any key to continue..."
+
+    ((problematic++))
 }
 
 DIR="./examples/positive"
@@ -60,4 +66,9 @@ else
     done
 fi
 
-rm -rfv "$OUT"
+if [ "$problematic" -eq 0 ]
+then
+    rm -rfv "$OUT"
+fi
+
+exit 0
