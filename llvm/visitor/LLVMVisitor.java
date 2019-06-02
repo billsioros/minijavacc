@@ -951,7 +951,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         String labelFalse = LLVM.getLabel(), labelTrue = LLVM.getLabel();
 
-        LLVM.emit(i1OutOfBounds + " = icmp sle i32 " + i32Length + ", i32 0");
+        LLVM.emit(i1OutOfBounds + " = icmp sle i32 " + i32Length + ", 0");
 
         LLVM.emit("br i1 " + i1OutOfBounds + ", label %" + labelTrue + ", label %" + labelFalse);
 
