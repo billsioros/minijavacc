@@ -11,6 +11,8 @@ class Emitter extends PrintWriter
 {
     private static Emitter instance = null;
 
+    private static long lineCount = 1;
+
     private Emitter(File file) throws FileNotFoundException
     {
         super(file);
@@ -20,6 +22,9 @@ class Emitter extends PrintWriter
         emit("declare i8* @calloc(i32, i32)");
         emit("declare i32 @printf(i8*, ...)");
         emit("declare void @exit(i32)");
+
+        if (Options.DEBUG)
+            emit("@_dbgfmt = constant [9 x i8] c\"[%d] %s\\0a\\00\"");
 
         emit("@_i32fmt = constant [4 x i8] c\"%d\\0a\\00\"");
 
@@ -67,6 +72,9 @@ class Emitter extends PrintWriter
         if (instance != null)
             throw new UnrecoverableError("Emitter.instance is non null");
 
+        if (lineCount != 1)
+            throw new UnrecoverableError("Emitter.lineCount has not been reset");
+
         filename = filename.replace("\\s+", "");
 
         if (filename.isEmpty())
@@ -102,7 +110,7 @@ class Emitter extends PrintWriter
 
         instance.close();
 
-        instance = null;
+        instance = null; lineCount = 1;
     }
 
     public static void emit(String string)
@@ -113,14 +121,48 @@ class Emitter extends PrintWriter
         string = string.trim();
 
         if (string.matches("(define|@).*"))
-            instance.println("\n" + string);
+        {
+            instance.println("\n" + string); lineCount += 2;
+        }
         else if (string.matches("ret.*"))
-            instance.println("\n\t" + string);
+        {
+            instance.println("\n\t" + string); lineCount += 2;
+        }
         else if (string.matches("(\\{|\\[).*"))
-            instance.println(string);
+        {
+            instance.println(string); lineCount++;
+        }
         else if (string.matches("(declare|\\}|\\]|.*:).*"))
-            instance.println(string + "\n");
+        {
+            instance.println(string + "\n"); lineCount += 2;
+        }
         else
-            instance.println("\t" + string);
+        {
+            instance.println("\t" + string); lineCount++;
+        }
+    }
+
+    public static void debug(String message)
+    {
+        if (Options.DEBUG)
+        {
+            message = message.trim();
+
+            int size = message.length() + 2;
+
+            emit("; <DBG> " + message);
+
+            String i8Array = "%_debug" + lineCount;
+            emit(i8Array + String.format(" = alloca [%d x i8]", size));
+
+            emit(String.format("store [%d x i8] c\"%s\\0a\\00\", [%d x i8]* %s", size, message, size, i8Array));
+
+            String i8Pointer = "%_debug" + lineCount;
+            emit(i8Pointer + String.format(" = bitcast [%d x i8]* %s to i8*", size, i8Array));
+
+            emit(String.format("call i32 (i8*, ...) @printf(i8* bitcast ([9 x i8]* @_dbgfmt to i8*), i32 %d, i8* %s)", lineCount, i8Pointer));
+
+            emit("; <DBG> " + message);
+        }
     }
 }

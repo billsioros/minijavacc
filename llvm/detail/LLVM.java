@@ -3,6 +3,8 @@ package llvm.detail;
 
 import semantic.detail.*;
 
+import error.*;
+
 import java.util.*;
 
 public class LLVM
@@ -107,5 +109,54 @@ public class LLVM
         }
 
         LLVM.emit("]");
+    }
+
+    public static String assertMatchingType(Scope scope, Variable variable, String expected_type)
+    {
+        String variable_type = variable.getType();
+        String identifier    = variable.getIdentifier();
+
+        Pointer varpointer = Pointer.from(variable_type);
+        Pointer exppointer = Pointer.from(expected_type);
+
+        if (!varpointer.base.equals(exppointer.base))
+        {
+            try
+            {
+                Base base = null, derived = null;
+
+                if (!varpointer.base.equals("i8"))
+                    derived = scope.getGlobal().acquireClass(varpointer.base);
+
+                if (!exppointer.base.equals("i8"))
+                    base = scope.getGlobal().acquireClass(exppointer.base);
+
+                if (base != null && derived != null && !derived.isSubclassOf(base))
+                    throw new Exception();
+            }
+            catch (Exception ignore)
+            {
+                throw new UnrecoverableError("'" + identifier + "' is of type '" + variable_type + "' instead of '" + expected_type + "'");
+            }
+        }
+
+        if (varpointer.degree != exppointer.degree)
+        {
+            if (varpointer.degree != exppointer.degree + 1)
+                throw new UnrecoverableError("'" + identifier + "' is of type '" + variable_type + "' instead of '" + expected_type + "'");
+
+            String register = LLVM.getRegister();
+
+            LLVM.emit(register + " = load " + expected_type + ", " + expected_type + "* " + identifier);
+
+            identifier = register;
+        }
+
+        return identifier;
+    }
+
+    public static void debug(String message)
+    {
+        Emitter.debug(message);
     }
 }
