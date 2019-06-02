@@ -160,9 +160,9 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             n.f15.accept(this); // f15 -> ( Statement() )*
 
             // n.f16.accept(this); f16 -> "}"
-            LLVM.emit("ret i32 0");
-
             LLVM.debug("Exiting @main");
+
+            LLVM.emit("ret i32 0");
 
             LLVM.emit("}");
 
@@ -311,12 +311,12 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         String register = LLVM.assertMatchingType(scope, expression, type);
 
+        LLVM.debug("Exiting Method @" + local.getIdentifier() + "." + identifier);
+
         LLVM.emit("ret " + type + " " + register);
 
         // n.f12.accept(this); f12 -> "}"
         scope.pop();
-
-        LLVM.debug("Exiting Method @" + local.getIdentifier() + "." + identifier);
 
         LLVM.emit("}");
 
