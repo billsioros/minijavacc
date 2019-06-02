@@ -87,7 +87,7 @@ public class Function extends Variable implements Context
         LinkedList<Variable> args = new LinkedList<Variable>();
 
         for (Map.Entry<String, String> entry : arguements.entrySet())
-            args.push(new Variable(entry.getValue(), entry.getKey()));
+            args.add(new Variable(entry.getValue(), entry.getKey()));
 
         return args;
     }
