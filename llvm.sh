@@ -13,7 +13,7 @@ function test
         return
     fi
 
-    echo -e "\nDirectory: $DIR Filename: $filename"
+    echo -e "\nFilename: $1\n"
 
     name="${filename%.*}"
 
