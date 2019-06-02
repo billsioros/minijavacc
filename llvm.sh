@@ -1,6 +1,6 @@
 #!/bin/bash
 
-filename="LinkedList.mini"
+filename="LinearSearch.mini"
 
 if [ ! -r "./examples/positive/$filename" ]
 then

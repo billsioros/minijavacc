@@ -268,7 +268,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             parameters = n.f4.accept(this); // f4 -> ( FormalParameterList() )?
         // n.f5.accept(this); f5 -> ")"
 
-        String parametersString = "i8* %.this";
+        String parametersString = "i8* %this";
         if (parameters != null)
             parametersString += LLVM.to(parameters);
 
@@ -931,7 +931,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
     @Override
     public LinkedList<Variable> visit(ThisExpression n)
     {
-        return asSingleton(Pointer.raw(scope.getOuter().getIdentifier(), 1), "%.this"); // f0 -> "this"
+        return asSingleton(Pointer.raw(scope.getOuter().getIdentifier(), 1), "%this"); // f0 -> "this"
     }
 
     @Override

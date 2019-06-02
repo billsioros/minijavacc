@@ -52,7 +52,7 @@ public class Scope extends semantic.detail.Scope
 
                 LLVM.debug("Accessing offset " + pair.second + " of '" + getOuter().getIdentifier() + "'");
 
-                LLVM.emit(i8Pointer + " = getelementptr i8, i8* %.this, i32 " + pair.second);
+                LLVM.emit(i8Pointer + " = getelementptr i8, i8* %this, i32 " + pair.second);
 
                 LLVM.emit(identifier + " = bitcast i8* " + i8Pointer + " to " + type);
 
@@ -108,7 +108,7 @@ public class Scope extends semantic.detail.Scope
 
             LinkedList<Variable> args = pair.first.getArguements();
 
-            String arguements = "i8* %.this";
+            String arguements = "i8* %this";
 
             if (args != null)
                 for (Variable arg : args)
