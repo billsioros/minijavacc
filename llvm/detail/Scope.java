@@ -27,7 +27,7 @@ public class Scope extends semantic.detail.Scope
         {
             Variable variable = getLocal().acquireVariable(identifier).first;
 
-            LLVM.debug("Acquired Local Variable '" + identifier + "'");
+            LLVM.comment("Acquired Local Variable '" + identifier + "'");
 
             type = LLVM.to(variable.getType()) + "*";
 
@@ -42,7 +42,7 @@ public class Scope extends semantic.detail.Scope
             {
                 Pair<Variable, Integer> pair = getOuter().acquireVariable(identifier);
 
-                LLVM.debug("Acquired field '" + pair.first.getIdentifier() + "' of '" + getOuter().getIdentifier() +"'");
+                LLVM.comment("Acquired field '" + pair.first.getIdentifier() + "' of '" + getOuter().getIdentifier() +"'");
 
                 type = LLVM.to(pair.first.getType()) + "*";
 
@@ -82,7 +82,7 @@ public class Scope extends semantic.detail.Scope
 
             Pair<Function, Integer> pair = local.acquireFunction(elements[1]);
 
-            LLVM.debug("Acquired function '" + pair.first.getIdentifier() + "' of '" + local.getIdentifier() + "'");
+            LLVM.comment("Acquired function '" + pair.first.getIdentifier() + "' of '" + local.getIdentifier() + "'");
 
             String i8CastedVTable = LLVM.getRegister();
 

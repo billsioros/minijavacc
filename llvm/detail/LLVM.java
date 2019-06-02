@@ -159,4 +159,9 @@ public class LLVM
     {
         Emitter.debug(message);
     }
+
+    public static void comment(String message)
+    {
+        Emitter.comment(message);
+    }
 }
