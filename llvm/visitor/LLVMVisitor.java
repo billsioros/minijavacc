@@ -154,11 +154,16 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
             // n.f13.accept(this); f13 -> "{"
             LLVM.emit("{");
 
+            LLVM.debug("Entering @main");
+
             n.f14.accept(this); // f14 -> ( VarDeclaration() )*
             n.f15.accept(this); // f15 -> ( Statement() )*
 
             // n.f16.accept(this); f16 -> "}"
             LLVM.emit("ret i32 0");
+
+            LLVM.debug("Exiting @main");
+
             LLVM.emit("}");
 
             scope.pop();
@@ -271,9 +276,19 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
         // n.f6.accept(this); f6 -> "{"
         LLVM.emit("{");
 
+        LLVM.debug("Entering Method @" + local.getIdentifier() + "." + identifier);
+
         if (parameters != null)
+        {
             for (Variable parameter : parameters)
-                LLVM.emit(parameter.getIdentifier().replace(".", "") + " = alloca " + parameter.getType());
+            {
+                String register = parameter.getIdentifier().replace(".", "");
+
+                LLVM.emit(register + " = alloca " + parameter.getType());
+
+                LLVM.emit("store " + parameter.getType() + " " + parameter.getIdentifier() + ", " + parameter.getType() + "* " + register);
+            }
+        }
 
         try
         {
@@ -300,6 +315,8 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         // n.f12.accept(this); f12 -> "}"
         scope.pop();
+
+        LLVM.debug("Exiting Method @" + local.getIdentifier() + "." + identifier);
 
         LLVM.emit("}");
 
@@ -385,7 +402,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             LLVM.debug("Assigning " + type + " " + register + " to " + type + "* " + variable.getIdentifier());
 
-            LLVM.emit("store " + type + " " + register + ", " + type + "*" + variable.getIdentifier());
+            LLVM.emit("store " + type + " " + register + ", " + type + "* " + variable.getIdentifier());
             // n.f3.accept(this); f3 -> ";"
 
             LLVM.emit("");

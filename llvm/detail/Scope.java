@@ -96,7 +96,7 @@ public class Scope extends semantic.detail.Scope
 
             LLVM.debug("Accessing offset " + pair.second + " of '" + local.getIdentifier() + "'");
 
-            LLVM.emit(i8FunctionPointer + " = getelementptr i8*, i8** " + i8LoadPointer + ", i32 " + pair.second);
+            LLVM.emit(i8FunctionPointer + " = getelementptr i8*, i8** " + i8LoadPointer + ", i32 " + pair.second / pair.first.size());
 
             String i8LoadFunctionPointer = LLVM.getRegister();
 
