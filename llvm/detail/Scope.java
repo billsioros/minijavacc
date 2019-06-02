@@ -27,6 +27,8 @@ public class Scope extends semantic.detail.Scope
         {
             Variable variable = getLocal().acquireVariable(identifier).first;
 
+            LLVM.debug("Acquired Local Variable '" + identifier + "'");
+
             type = LLVM.to(variable.getType()) + "*";
 
             identifier = "%" + variable.getIdentifier();
@@ -40,11 +42,15 @@ public class Scope extends semantic.detail.Scope
             {
                 Pair<Variable, Integer> pair = getOuter().acquireVariable(identifier);
 
+                LLVM.debug("Acquired field '" + pair.first.getIdentifier() + "' of '" + getOuter().getIdentifier() +"'");
+
                 type = LLVM.to(pair.first.getType()) + "*";
 
                 identifier = LLVM.getRegister();
 
                 String i8Pointer = LLVM.getRegister();
+
+                LLVM.debug("Accessing offset " + pair.second + " of '" + getOuter().getIdentifier() + "'");
 
                 LLVM.emit(i8Pointer + " = getelementptr i8, i8* %.this, i32 " + pair.second);
 
@@ -76,6 +82,8 @@ public class Scope extends semantic.detail.Scope
 
             Pair<Function, Integer> pair = local.acquireFunction(elements[1]);
 
+            LLVM.debug("Acquired function '" + pair.first.getIdentifier() + "' of '" + local.getIdentifier() + "'");
+
             String i8CastedVTable = LLVM.getRegister();
 
             LLVM.emit(i8CastedVTable + " = bitcast i8* " + elements[0] + " to i8***");
@@ -85,6 +93,8 @@ public class Scope extends semantic.detail.Scope
             LLVM.emit(i8LoadPointer + " = load i8**, i8*** " + i8CastedVTable);
 
             String i8FunctionPointer = LLVM.getRegister();
+
+            LLVM.debug("Accessing offset " + pair.second + " of '" + local.getIdentifier() + "'");
 
             LLVM.emit(i8FunctionPointer + " = getelementptr i8*, i8** " + i8LoadPointer + ", i32 " + pair.second);
 
