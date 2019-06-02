@@ -5,7 +5,7 @@ function test
     DIR="$(dirname "$1")"
     filename="$(basename "$1")"
 
-    echo "Directory: $DIR Filename: $filename"
+    echo -e "\nDirectory: $DIR Filename: $filename"
 
     name="${filename%.*}"
 
@@ -19,8 +19,12 @@ function test
             then
                 code -w "$OUT"/"$name".ll ./examples/llvm/"$name".llvm "$DIR"/"$name".mini "$OUT"/"$name".str
             fi
+
+            return
         fi
     fi
+
+    read -n1 -r -p "Press any key to continue..."
 }
 
 DIR="./examples/positive"
@@ -34,17 +38,26 @@ mkdir -p "$OUT"
 
 if [ ! "$#" -eq 0 ]
 then
-    for filename in "$@"
+    for arguement in "$@"
+    do
+        if [ -f "$arguement" ]
+        then
+            test "$arguement"
+        elif [ -d "$arguement" ]
+        then
+            for filename in $(ls "$arguement")
+            do
+                test "$arguement"/"$filename"
+            done
+        else
+            exit 1
+        fi
+    done
+else
+    for filename in $(ls "$DIR")
     do
         test "$filename"
     done
-
-    exit 0
 fi
-
-for filename in $(ls "$DIR")
-do
-    test "$filename"
-done
 
 rm -rfv "$OUT"
