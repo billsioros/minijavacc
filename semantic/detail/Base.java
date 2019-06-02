@@ -135,7 +135,8 @@ public class Base implements Context
         LinkedList<Function> functions = new LinkedList<Function>();
 
         for (Pair<Function, Integer> pair : this.functions.values())
-            functions.add(pair.first);
+            if (!pair.first.getType().startsWith("static"))
+                functions.add(pair.first);
 
         return functions;
     }
