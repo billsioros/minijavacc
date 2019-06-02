@@ -90,15 +90,17 @@ public class LLVM
 
     public static void emit(Base base)
     {
-        if (base.getBase() != null)
-            emit(base.getBase());
-
         String className = base.getIdentifier();
 
         LinkedList<Function> functions = base.getFunctions();
 
-        if (base.getBase() != null && functions.size() > 0)
-            emit(", ; " + base.getBase().getIdentifier());
+        if (base.getBase() != null && base.getBase().functionCount() > 0)
+        {
+            emit(base.getBase());
+
+            if (functions.size() > 0)
+                emit(", ; " + base.getBase().getIdentifier());
+        }
 
         for (Function function : functions)
         {

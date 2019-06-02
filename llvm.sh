@@ -5,7 +5,13 @@ problematic=0
 function test
 {
     DIR="$(dirname "$1")"
+
     filename="$(basename "$1")"
+
+    if [ "${filename##*.}" != "mini" ]
+    then
+        return
+    fi
 
     echo -e "\nDirectory: $DIR Filename: $filename"
 

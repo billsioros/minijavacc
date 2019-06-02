@@ -133,7 +133,7 @@ public class DeclarationVisitor extends GJNoArguDepthFirst<String>
         // f1 -> Identifier()
         try
         {
-            scope.register(new Base(n.f1.accept(this)));
+            scope.register(new Main(n.f1.accept(this)));
         }
         catch (Exception ex)
         {

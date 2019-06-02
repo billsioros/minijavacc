@@ -26,15 +26,8 @@ public class Base implements Context
     {
         this.identifier = identifier;
 
-        int staticFunctions = 0;
-        for (Pair<Function, Integer> entry : base.functions.values())
-        {
-            if (entry.first.getType().startsWith("static"))
-                staticFunctions++;
-        }
-
         this.variables = new Table<Variable>(base.variables.getOffset());
-        this.functions = new Table<Function>(base.functions.getOffset() - staticFunctions * 8);
+        this.functions = new Table<Function>(base.getFunctionsOffset());
     }
 
     public String getIdentifier()
@@ -45,6 +38,11 @@ public class Base implements Context
     public Base getBase()
     {
         return null;
+    }
+
+    public int getFunctionsOffset()
+    {
+        return functions.getOffset();
     }
 
     public int size()
@@ -135,8 +133,7 @@ public class Base implements Context
         LinkedList<Function> functions = new LinkedList<Function>();
 
         for (Pair<Function, Integer> pair : this.functions.values())
-            if (!pair.first.getType().startsWith("static"))
-                functions.add(pair.first);
+            functions.add(pair.first);
 
         return functions;
     }
