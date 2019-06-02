@@ -7,5 +7,5 @@ public class Options
 
     public static final boolean DEBUG = true;
 
-    public static final boolean EMBED_LOGGING = false;
+    public static final boolean EMBEDDED_LOGGING = true;
 }

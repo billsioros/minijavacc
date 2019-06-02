@@ -849,6 +849,8 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             String type = function.getType(), llvm_type = LLVM.to(type);
 
+            LLVM.debug("Invoking '" + function.getIdentifier() + "(" + arguementsString + ")'");
+
             LLVM.emit(register + " = call " + llvm_type + " " + function.getIdentifier() + "(" + arguementsString + ")");
 
             LLVM.debug("Exiting Message Send Expression on '" + caller.getIdentifier() + "'");

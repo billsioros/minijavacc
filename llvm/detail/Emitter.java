@@ -158,7 +158,7 @@ class Emitter extends PrintWriter
             comment("-------------------------------------");
             comment(message);
 
-            if (Options.EMBED_LOGGING)
+            if (Options.EMBEDDED_LOGGING)
             {
                 String i8Array = "%_debug" + lineCount;
                 emit(i8Array + String.format(" = alloca [%d x i8]", size));
