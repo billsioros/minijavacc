@@ -1,6 +1,6 @@
 #!/bin/bash
 
-filename="Factorial.mini"
+filename="LinkedList.mini"
 
 if [ ! -r "./examples/positive/$filename" ]
 then
@@ -9,8 +9,13 @@ fi
 
 ./compile.sh --clean
 ./compile.sh
-java Main ./examples/positive/"$filename" > ./structure
-code ./examples/positive/"$filename" ./structure ./examples/positive/"${filename%.*}".ll ./examples/llvm/"${filename%.*}".llvm
-clang -o binary ./examples/positive/"${filename%.*}".ll
 
-./binary
+if java Main ./examples/positive/"$filename" > ./structure
+then
+    code ./examples/positive/"$filename" ./structure ./examples/positive/"${filename%.*}".ll ./examples/llvm/"${filename%.*}".llvm
+
+    if clang -o binary ./examples/positive/"${filename%.*}".ll
+    then
+        ./binary
+    fi
+fi
