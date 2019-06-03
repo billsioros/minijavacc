@@ -17,7 +17,7 @@ function test
         return
     fi
 
-    echo -e "\nFilename: $1\n"
+    echo "Processing file '$1'"
 
     name="${filename%.*}"
 
@@ -27,9 +27,9 @@ function test
 
         if clang -Wno-override-module -o "$OUT"/"$name".bin "$OUT"/"$name".ll
         then
-            if ! "$OUT"/"$name".bin
+            if ! "$OUT"/"$name".bin > "$OUT"/"$name".out
             then
-                code -w "$OUT"/"$name".ll ./examples/llvm/"$name".llvm "$DIR"/"$name".java "$OUT"/"$name".str
+                code -w "$OUT"/"$name".ll ./examples/llvm/"$name".llvm "$DIR"/"$name".java "$OUT"/"$name".str "$OUT"/"$name".out
 
                 ((problematic++))
             fi
