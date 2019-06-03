@@ -56,8 +56,8 @@ public class Main extends Base
     }
 
     @Override
-    public LinkedList<Function> getFunctions()
+    public TreeMap<Integer, Pair<String, Function>> getFunctions()
     {
-        return new LinkedList<Function>();
+        return new TreeMap<Integer, Pair<String, Function>>();
     }
 }

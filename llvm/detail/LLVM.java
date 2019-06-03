@@ -5,6 +5,8 @@ import semantic.detail.*;
 
 import error.*;
 
+import utility.*;
+
 import java.util.*;
 
 public class LLVM
@@ -90,27 +92,25 @@ public class LLVM
 
     public static void emit(Base base)
     {
-        String className = base.getIdentifier();
+        Collection<Pair<String, Function>> pairs = base.getFunctions().values();
 
-        LinkedList<Function> functions = base.getFunctions();
+        LLVM.emit(LLVM.VTableOf(base) + " = global [" + pairs.size() + " x i8*]");
 
-        if (base.getBase() != null && base.getBase().functionCount() > 0)
+        LLVM.emit("[");
+
+        int count = 0;
+
+        for (Pair<String, Function> pair : pairs)
         {
-            emit(base.getBase());
+            String identifier = pair.second.getIdentifier();
+            String type       = pair.second.getType();
 
-            if (functions.size() > 0)
-                emit(", ; " + base.getBase().getIdentifier());
+            String[] argtypes = pair.second.getArguementTypes();
+
+            LLVM.emit(String.format("i8* bitcast (%s (%s)* %s to i8*)" + (++count < pairs.size() ? "," : ""), to(type), to(argtypes), "@" + pair.first + "." + identifier));
         }
 
-        for (Function function : functions)
-        {
-            String identifier = function.getIdentifier();
-            String type       = function.getType();
-
-            String[] argtypes = function.getArguementTypes();
-
-            LLVM.emit(String.format("i8* bitcast (%s (%s)* %s to i8*)" + (function != functions.getLast() ? "," : ""), to(type), to(argtypes), "@" + className + "." + identifier));
-        }
+        LLVM.emit("]");
     }
 
     public static String assertMatchingType(Scope scope, Variable variable, String expected_type)

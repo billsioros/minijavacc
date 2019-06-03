@@ -128,12 +128,12 @@ public class Base implements Context
         return content;
     }
 
-    public LinkedList<Function> getFunctions()
+    public TreeMap<Integer, Pair<String, Function>> getFunctions()
     {
-        LinkedList<Function> functions = new LinkedList<Function>();
+        TreeMap<Integer, Pair<String, Function>> functions = new TreeMap<Integer, Pair<String, Function>>();
 
         for (Pair<Function, Integer> pair : this.functions.values())
-            functions.add(pair.first);
+            functions.put(pair.second, new Pair<String, Function>(identifier, pair.first));
 
         return functions;
     }

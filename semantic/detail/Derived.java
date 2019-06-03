@@ -27,7 +27,7 @@ public class Derived extends Base
     @Override
     public int functionCount()
     {
-        return functions.size() + base.functionCount();
+        return getFunctions().size();
     }
 
     @Override
@@ -95,6 +95,16 @@ public class Derived extends Base
 
         if (other != null && (!other.first.equals(function) || functions.register(new Pair<Function, Integer>(function, other.second)) != null))
             throw new Exception("Multiple definitions of function '" + key + "' in type '" + this.identifier + "'");
+    }
+
+    public TreeMap<Integer, Pair<String, Function>> getFunctions()
+    {
+        TreeMap<Integer, Pair<String, Function>> functions = base.getFunctions();
+
+        for (Pair<Function, Integer> pair : this.functions.values())
+            functions.put(pair.second, new Pair<String, Function>(identifier, pair.first));
+
+        return functions;
     }
 
     @Override
