@@ -69,6 +69,8 @@ function test
 
                     "$EDITOR" -r -w "$DESTINATION"/"$name".ll
                 fi
+
+                return
             else
                 (
                     cd "$directory" || return
@@ -89,12 +91,14 @@ function test
                     then
                         "$EDITOR" -w -r -d "$DESTINATION"/"$name".secondary "$DESTINATION/$name.original"
                     fi
+
+                    return
                 fi
+
+                log "[SUCCESS]" "'$1'"
+
+                return
             fi
-
-            log "[SUCCESS]" "'$1'"
-
-            return
         fi
     fi
 
@@ -120,13 +124,15 @@ fi
 
 mkdir -p "$DESTINATION"
 
+DESTINATION="$(realpath "$DESTINATION")"
+
 ./compile.sh --clean && ./compile.sh
 
 if [[ "$*" == *"-p"* ]] || [[ "$*" == *"--problem"* ]]
 then
     EDITOR="$(command -v code)"
 
-    cmd="${*//--p}"; cmd="${*//--problem}"; set -- ${cmd[@]}; echo "$*"
+    cmd="$*"; cmd="${cmd//--problem}"; cmd="${cmd//-p}"; set -- ${cmd[@]}; echo "$*"
 fi
 
 if [ "$#" -gt 0 ]
