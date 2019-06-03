@@ -47,6 +47,31 @@ function log
     echo -e "$(tput setaf "$color")$1$(tput sgr0): $2"
 }
 
+mkdir -p "$OUT"
+
+OUT="$(realpath "$OUT")"
+
+function log
+{
+    if [[ "$1" == *"[SUCCESS]"* ]]
+    then
+        color=118
+    elif [[ "$1" == *"[FAILURE]"* ]]
+    then
+        color=166
+    elif [[ "$1" == *"[MESSAGE]"* ]]
+    then
+        color=6
+    elif [[ "$1" == *"[WARNING]"* ]]
+    then
+        color=170
+    else
+        color=196
+    fi
+
+    echo -e "$(tput setaf "$color")$1$(tput sgr0): $2"
+}
+
 function test
 {
     ((total++))
