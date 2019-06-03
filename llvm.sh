@@ -32,6 +32,13 @@ function test
                 code -w "$OUT"/"$name".ll ./examples/llvm/"$name".llvm "$DIR"/"$name".java "$OUT"/"$name".str "$OUT"/"$name".out
 
                 ((problematic++))
+            else
+                differences="$(diff <( tr -d "[:space:]" <"$OUT"/"$name".out ) <( tr -d "[:space:]" <"$DIR"/"$name".output))";
+
+                if [ -n "$differences" ]
+                then
+                    code -w -r -d "$OUT"/"$name".out "$DIR"/"$name".output
+                fi
             fi
 
             return
