@@ -33,6 +33,13 @@ public class Table<Declaration extends Variable> extends LinkedHashMap<String, P
         return (pair != null ? pair.first : null);
     }
 
+    public Declaration register(Pair<Declaration, Integer> pair)
+    {
+        Pair<Declaration, Integer> other = putIfAbsent(pair.first.getIdentifier(), pair);
+
+        return (other != null ? other.first : null);
+    }
+
     public Declaration acquire(String identifier)
     {
         Pair<Declaration, Integer> pair = get(identifier);

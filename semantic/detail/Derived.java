@@ -5,6 +5,8 @@ import semantic.options.*;
 
 import utility.*;
 
+import java.util.*;
+
 public class Derived extends Base
 {
     private Base base;
@@ -79,11 +81,11 @@ public class Derived extends Base
     {
         String key = function.getIdentifier();
 
-        Function other = null;
+        Pair<Function, Integer> other = null;
 
         try
         {
-            other = base.acquireFunction(key).first;
+            other = base.acquireFunction(key);
         }
         catch (Exception ex)
         {
@@ -91,8 +93,44 @@ public class Derived extends Base
                 throw new Exception("Multiple definitions of function '" + key + "' in type '" + this.identifier + "'");
         }
 
-        if (other != null && !other.equals(function))
+        if (other != null && (!other.first.equals(function) || functions.register(new Pair<Function, Integer>(function, other.second)) != null))
             throw new Exception("Multiple definitions of function '" + key + "' in type '" + this.identifier + "'");
+    }
+
+    @Override
+    protected String getFunctionsString()
+    {
+        String content = "";
+
+        if (!Options.JAVA_FORMAT)
+        {
+            content += "---Methods---\n";
+
+            for (Map.Entry<String, Pair<Function, Integer>> entry : functions.entrySet())
+            {
+                Pair<Function, Integer> pair = entry.getValue();
+
+                try
+                {
+                    base.acquireFunction(pair.first.getIdentifier()); continue;
+                }
+                catch (Exception ex)
+                {
+                    content += this.identifier + "." + pair.first.getIdentifier() + " : " + pair.second + "\n";
+                }
+            }
+
+            return content;
+        }
+
+        for (Map.Entry<String, Pair<Function, Integer>> entry : functions.entrySet())
+        {
+            Pair<Function, Integer> pair = entry.getValue();
+
+            content += "\n\t" + pair.second + ": " + pair.first.toString() + ";\n";
+        }
+
+        return content;
     }
 
     @Override

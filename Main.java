@@ -42,15 +42,15 @@ class Main
 
                 DeclarationVisitor declarationVisitor = new DeclarationVisitor();
 
+                Goal goal = parser.Goal();
+
+                String structure = goal.accept(declarationVisitor);
+
                 Global global = declarationVisitor.getGlobal();
 
                 StatementVisitor statementVisitor = new StatementVisitor(global);
 
                 LLVMVisitor llvmVisitor = new LLVMVisitor(global);
-
-                Goal goal = parser.Goal();
-
-                String structure = goal.accept(declarationVisitor);
 
                 statementVisitor.visit(declarationVisitor.getPending());
 
