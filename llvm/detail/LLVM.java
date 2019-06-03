@@ -7,10 +7,16 @@ import error.*;
 
 import utility.*;
 
+import syntaxtree.*;
+
 import java.util.*;
 
 public class LLVM
 {
+    public static final int ArrayIndexOutOfBoundsExceptionCode = 0;
+
+    public static final int NegativeArraySizeExceptionCode = 1;
+
     private static int labelCount = 0, variableCount = 0;
 
     public static String getLabel()
@@ -165,5 +171,15 @@ public class LLVM
     public static void comment(String message)
     {
         Emitter.comment(message);
+    }
+
+    public static void error(Node node, String lengthRegister)
+    {
+        emit(String.format("call void @throw(i32 %d, i32 %d, i32 %s, i32 %d)", NegativeArraySizeExceptionCode, LineNumberInfo.get(node).lineStart, lengthRegister, -1));
+    }
+
+    public static void error(Node node, String indexRegister, String lengthRegister)
+    {
+        emit(String.format("call void @throw(i32 %d, i32 %d, i32 %s, i32 %s)", ArrayIndexOutOfBoundsExceptionCode, LineNumberInfo.get(node).lineStart, indexRegister, lengthRegister));
     }
 }

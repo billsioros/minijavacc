@@ -31,7 +31,14 @@ class Emitter extends PrintWriter
         emit("@_true  = constant [6 x i8] c\"true\\0a\\00\"");
         emit("@_false = constant [7 x i8] c\"false\\0a\\00\"");
 
-        emit("@_oob_exception = constant [15 x i8] c\"Out of bounds\\0a\\00\"");
+        emit("@_oob_exception = constant [73 x i8] c\"ArrayIndexOutOfBoundsException:%d: Index %d out of bounds for length %d\\0a\\00\"");
+        emit("@_alc_exception = constant [35 x i8] c\"NegativeArraySizeException:%d: %d\\0a\\00\"");
+
+        emit("@_errors = global [2 x i8*]");
+        emit("[");
+        emit("i8* bitcast ([73 x i8]* @_oob_exception to i8*),");
+        emit("i8* bitcast ([35 x i8]* @_alc_exception to i8*)");
+        emit("]");
 
         emit("define void @print_i32(i32 %var)");
         emit("{");
@@ -58,10 +65,11 @@ class Emitter extends PrintWriter
         emit("ret void");
         emit("}");
 
-        emit("define void @throw_oob()");
+        emit("define void @throw(i32 %errno, i32 %line, i32 %index, i32 %length)");
         emit("{");
-        emit("%_str = bitcast [15 x i8]* @_oob_exception to i8*");
-        emit("call i32 (i8*, ...) @printf(i8* %_str)");
+        emit("%_str_ptr = getelementptr i8*, i8** bitcast ([2 x i8*]* @_errors to i8**), i32 %errno");
+        emit("%_str = load i8*, i8** %_str_ptr");
+        emit("call i32 (i8*, ...) @printf(i8* %_str, i32 %line, i32 %index, i32 %length)");
         emit("call void @exit(i32 1)");
         emit("ret void");
         emit("}");

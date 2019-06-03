@@ -451,7 +451,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             LLVM.emit(labelTrue + ":");
 
-            LLVM.emit("call void @throw_oob()");
+            LLVM.error(n, i32Index, i32Length);
 
             LLVM.emit("br label %" + labelFalse);
 
@@ -775,7 +775,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         LLVM.emit(labelTrue + ":");
 
-        LLVM.emit("call void @throw_oob()");
+        LLVM.error(n, i32Index, i32Length);
 
         LLVM.emit("br label %" + labelFalse);
 
@@ -963,7 +963,7 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
         LLVM.emit(labelTrue + ":");
 
-        LLVM.emit("call void @throw_oob()");
+        LLVM.error(n, i32Length);
 
         LLVM.emit("br label %" + labelFalse);
 
