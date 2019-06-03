@@ -33,11 +33,11 @@ function log
     echo -e "$(tput setaf "$color")$1$(tput sgr0): $2"
 }
 
+./compile.sh --clean
+
 if [[ "$*" == *"--clean"* ]]
 then
     log "[MESSAGE]" "Purging..."
-
-    ./compile.sh --clean
 
     find . -maxdepth 5 -name "*.ll" -delete -print
 
