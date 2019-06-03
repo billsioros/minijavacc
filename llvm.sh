@@ -2,54 +2,11 @@
 
 EDITOR=""
 
+DIRECTORIES=( "./examples/positive" "./examples/extra/positive" )
+DESTINATION="./test"
+
 total=0
 problematic=0
-
-DIRECTORIES=( "./examples/positive" "./examples/extra/positive" )
-
-OUT="./test"
-
-if [[ "$*" == *"--clean"* ]]
-then
-    log "[MESSAGE]" "Purging..."
-
-    ./compile.sh --clean
-
-    find . -maxdepth 5 -name "*.ll" -delete -print
-
-    rm -rfv "$OUT"
-
-    exit 0
-fi
-
-mkdir -p "$OUT"
-
-OUT="$(realpath "$OUT")"
-
-function log
-{
-    if [[ "$1" == *"[SUCCESS]"* ]]
-    then
-        color=118
-    elif [[ "$1" == *"[FAILURE]"* ]]
-    then
-        color=166
-    elif [[ "$1" == *"[MESSAGE]"* ]]
-    then
-        color=6
-    elif [[ "$1" == *"[WARNING]"* ]]
-    then
-        color=170
-    else
-        color=196
-    fi
-
-    echo -e "$(tput setaf "$color")$1$(tput sgr0): $2"
-}
-
-mkdir -p "$OUT"
-
-OUT="$(realpath "$OUT")"
 
 function log
 {
@@ -89,13 +46,13 @@ function test
 
     name="${filename%.*}"
 
-    if java Main "$directory"/"$name".java > "$OUT"/"$name".structure
+    if java Main "$directory"/"$name".java > "$DESTINATION"/"$name".structure
     then
-        mv "$directory"/"$name".ll "$OUT"/"$name".ll
+        mv "$directory"/"$name".ll "$DESTINATION"/"$name".ll
 
-        if clang -g -Wno-override-module -o "$OUT"/"$name".bin "$OUT"/"$name".ll
+        if clang -g -Wno-override-module -o "$DESTINATION"/"$name".bin "$DESTINATION"/"$name".ll
         then
-            if ! "$OUT"/"$name".bin > "$OUT"/"$name".secondary
+            if ! "$DESTINATION"/"$name".bin > "$DESTINATION"/"$name".secondary
             then
                 ((problematic++))
 
@@ -103,24 +60,24 @@ function test
 
                 if  [ -n "$EDITOR" ]
                 then
-                    "$EDITOR" -r "$directory"/"$name".java "$OUT"/"$name".structure "$OUT"/"$name".secondary
+                    "$EDITOR" -r "$directory"/"$name".java "$DESTINATION"/"$name".structure "$DESTINATION"/"$name".secondary
 
                     if [ -r ./examples/llvm/"$name".llvm ]
                     then
                         "$EDITOR" -r ./examples/llvm/"$name".llvm
                     fi
 
-                    "$EDITOR" -r -w "$OUT"/"$name".ll
+                    "$EDITOR" -r -w "$DESTINATION"/"$name".ll
                 fi
             else
                 (
                     cd "$directory" || return
 
                     javac "$name".java
-                    java  "$name" > "$OUT/$name.original"
+                    java  "$name" > "$DESTINATION/$name.original"
                 )
 
-                differences="$(diff <( tr -d "[:space:]" <"$OUT"/"$name".secondary ) <( tr -d "[:space:]" <"$OUT/$name.original"))";
+                differences="$(diff <( tr -d "[:space:]" <"$DESTINATION"/"$name".secondary ) <( tr -d "[:space:]" <"$DESTINATION/$name.original"))";
 
                 if [ -n "$differences" ]
                 then
@@ -130,7 +87,7 @@ function test
 
                     if [ -n "$EDITOR" ]
                     then
-                        "$EDITOR" -w -r -d "$OUT"/"$name".secondary "$OUT/$name.original"
+                        "$EDITOR" -w -r -d "$DESTINATION"/"$name".secondary "$DESTINATION/$name.original"
                     fi
                 fi
             fi
@@ -148,13 +105,31 @@ function test
     read -n1 -r -p "Press any key to continue..."
 }
 
-if [[ "$*" == *"--problem"* ]]
+if [[ "$*" == *"--clean"* ]]
 then
-    EDITOR="$(command -v code)"
+    log "[MESSAGE]" "Purging..."
+
+    ./compile.sh --clean
+
+    find . -maxdepth 5 -name "*.ll" -delete -print
+
+    rm -rfv "$DESTINATION"
+
+    exit 0
 fi
 
-./compile.sh --clean
-./compile.sh
+mkdir -p "$DESTINATION"
+
+DESTINATION="$(realpath "$DESTINATION")"
+
+./compile.sh --clean && ./compile.sh
+
+if [[ "$*" == "--problem"* ]]
+then
+    EDITOR="$(command -v code)"
+
+    cmd="${*//--problem}"; set -- ${cmd[@]}; echo "$*"
+fi
 
 if [ "$#" -gt 0 ]
 then
