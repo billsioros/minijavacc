@@ -451,6 +451,8 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
 
             LLVM.emit(i32Length + " = load i32, i32* " + i32LengthPointer);
 
+            LLVM.debug("Indexing array '" + i32Array + "' of length '" + i32Length + "' at '" + i32Index + "'");
+
             String i1OutOfBounds = LLVM.getRegister();
 
             LLVM.emit(i1OutOfBounds + " = icmp ule i32 " + i32Length + ", " + i32Index);
@@ -762,8 +764,6 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
         // n.f1.accept(this); f1 -> "["
         Variable index = assertIsSingleton(n.f2.accept(this)); // f2 -> PrimaryExpression()
 
-        LLVM.debug("Indexing array '" + array.getIdentifier() + "' with '" + index.getIdentifier() + "'");
-
         String i32Index = LLVM.assertMatchingType(scope, index, "i32");
         // n.f3.accept(this); f3 -> "]"
 
@@ -774,6 +774,8 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
         String i32Length = LLVM.getRegister();
 
         LLVM.emit(i32Length + " = load i32, i32* " + i32LengthPointer);
+
+        LLVM.debug("Indexing array '" + i32Array + "' of length '" + i32Length + "' at '" + i32Index + "'");
 
         String i1OutOfBounds = LLVM.getRegister();
 
@@ -964,6 +966,8 @@ public class LLVMVisitor extends GJNoArguDepthFirst<LinkedList<Variable>>
         String i1OutOfBounds = LLVM.getRegister();
 
         String labelFalse = LLVM.getLabel(), labelTrue = LLVM.getLabel();
+
+        LLVM.debug("Allocating an array of length '" + i32Length + "'");
 
         LLVM.emit(i1OutOfBounds + " = icmp sle i32 " + i32Length + ", 0");
 

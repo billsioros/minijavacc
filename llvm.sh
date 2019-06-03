@@ -2,6 +2,10 @@
 
 problematic=0
 
+DIR="./examples/extra/positive"
+
+OUT="./IR"
+
 function test
 {
     DIR="$(dirname "$1")"
@@ -39,10 +43,6 @@ function test
     ((problematic++))
 }
 
-DIR="./examples/positive"
-
-OUT="./IR"
-
 mkdir -p "$OUT"
 
 ./compile.sh --clean
@@ -68,7 +68,7 @@ then
 else
     for filename in $(ls "$DIR")
     do
-        test "$filename"
+        test "$DIR"/"$filename"
     done
 fi
 
