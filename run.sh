@@ -91,7 +91,7 @@ do
 
         mkdir -p "$dir_out" "$dir_err"
 
-        for file in $(ls "$dataset"/"$label"/*.mini)
+        for file in $(ls "$dataset"/"$label"/*.java)
         do
             counterpart=""
 
@@ -113,7 +113,7 @@ do
                 then
                     result="[FAILURE]";
 
-                    counterpart="$dataset/positive/$(basename "${file%-error.mini}").mini"
+                    counterpart="$dataset/positive/$(basename "${file%-error.java}").java"
                 else
                     result="[PROBLEM]"; details="File labeled as 'positive' failed"
                 fi

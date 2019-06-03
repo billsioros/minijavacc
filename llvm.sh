@@ -12,7 +12,7 @@ function test
 
     filename="$(basename "$1")"
 
-    if [ "${filename##*.}" != "mini" ]
+    if [ "${filename##*.}" != "java" ]
     then
         return
     fi
@@ -21,7 +21,7 @@ function test
 
     name="${filename%.*}"
 
-    if java Main "$DIR"/"$name".mini > "$OUT"/"$name".str
+    if java Main "$DIR"/"$name".java > "$OUT"/"$name".str
     then
         mv "$DIR"/"$name".ll "$OUT"/"$name".ll
 
@@ -29,7 +29,7 @@ function test
         then
             if ! "$OUT"/"$name".bin
             then
-                code -w "$OUT"/"$name".ll ./examples/llvm/"$name".llvm "$DIR"/"$name".mini "$OUT"/"$name".str
+                code -w "$OUT"/"$name".ll ./examples/llvm/"$name".llvm "$DIR"/"$name".java "$OUT"/"$name".str
 
                 ((problematic++))
             fi
