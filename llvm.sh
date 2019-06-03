@@ -2,29 +2,11 @@
 
 EDITOR=""
 
+DIRECTORIES=( "./examples/positive" "./examples/extra/positive" )
+DESTINATION="./test"
+
 total=0
 problematic=0
-
-DIRECTORIES=( "./examples/positive" "./examples/extra/positive" )
-
-OUT="./test"
-
-if [[ "$*" == *"--clean"* ]]
-then
-    log "[MESSAGE]" "Purging..."
-
-    ./compile.sh --clean
-
-    find . -maxdepth 5 -name "*.ll" -delete -print
-
-    rm -rfv "$OUT"
-
-    exit 0
-fi
-
-mkdir -p "$OUT"
-
-OUT="$(realpath "$OUT")"
 
 function log
 {
@@ -64,48 +46,48 @@ function test
 
     name="${filename%.*}"
 
-    if java Main "$directory"/"$name".java > "$OUT"/"$name".structure
+    if java Main "$directory"/"$name".java > "$DESTINATION"/"$name".structure
     then
-        mv "$directory"/"$name".ll "$OUT"/"$name".ll
+        mv "$directory"/"$name".ll "$DESTINATION"/"$name".ll
 
-        if clang -g -Wno-override-module -o "$OUT"/"$name".bin "$OUT"/"$name".ll
+        if clang -g -Wno-override-module -o "$DESTINATION"/"$name".bin "$DESTINATION"/"$name".ll
         then
-            if ! "$OUT"/"$name".bin > "$OUT"/"$name".secondary
+            if ! "$DESTINATION"/"$name".bin > "$DESTINATION"/"$name".secondary
             then
                 ((problematic++))
 
-                log "[PROBLEM]" "'$1' (Abrupt Termination)"
+                log "[PROBLEM]" "'$DESTINATION/$name.ll' (Abrupt Termination)"
 
                 if  [ -n "$EDITOR" ]
                 then
-                    "$EDITOR" -r "$directory"/"$name".java "$OUT"/"$name".structure "$OUT"/"$name".secondary
+                    "$EDITOR" -r "$directory"/"$name".java "$DESTINATION"/"$name".structure "$DESTINATION"/"$name".secondary
 
                     if [ -r ./examples/llvm/"$name".llvm ]
                     then
                         "$EDITOR" -r ./examples/llvm/"$name".llvm
                     fi
 
-                    "$EDITOR" -r -w "$OUT"/"$name".ll
+                    "$EDITOR" -r -w "$DESTINATION"/"$name".ll
                 fi
             else
                 (
                     cd "$directory" || return
 
                     javac "$name".java
-                    java  "$name" > "$OUT/$name.original"
+                    java  "$name" > "$DESTINATION/$name.original"
                 )
 
-                differences="$(diff <( tr -d "[:space:]" <"$OUT"/"$name".secondary ) <( tr -d "[:space:]" <"$OUT/$name.original"))";
+                differences="$(diff <( tr -d "[:space:]" <"$DESTINATION"/"$name".secondary ) <( tr -d "[:space:]" <"$DESTINATION/$name.original"))";
 
                 if [ -n "$differences" ]
                 then
                     ((problematic++))
 
-                    log "[PROBLEM]" "'$1' (Different output from javac)"
+                    log "[PROBLEM]" "'$DESTINATION/$name.ll' (Different output from javac)"
 
                     if [ -n "$EDITOR" ]
                     then
-                        "$EDITOR" -w -r -d "$OUT"/"$name".secondary "$OUT/$name.original"
+                        "$EDITOR" -w -r -d "$DESTINATION"/"$name".secondary "$DESTINATION/$name.original"
                     fi
                 fi
             fi
@@ -118,18 +100,34 @@ function test
 
     ((problematic++))
 
-    log "[PROBLEM]" "'$1' (Compilation Error)"
+    log "[PROBLEM]" "'$DESTINATION/$name.ll' (Compilation Error)"
 
     read -n1 -r -p "Press any key to continue..."
 }
 
-if [[ "$*" == *"--problem"* ]]
+if [[ "$*" == *"--clean"* ]]
 then
-    EDITOR="$(command -v code)"
+    log "[MESSAGE]" "Purging..."
+
+    ./compile.sh --clean
+
+    find . -maxdepth 5 -name "*.ll" -delete -print
+
+    rm -rfv "$DESTINATION"
+
+    exit 0
 fi
 
-./compile.sh --clean
-./compile.sh
+mkdir -p "$DESTINATION"
+
+./compile.sh --clean && ./compile.sh
+
+if [[ "$*" == "-p"* ]] || [[ "$*" == "--problem"* ]]
+then
+    EDITOR="$(command -v code)"
+
+    cmd="${*//--p}"; cmd="${*//--problem}"; set -- ${cmd[@]}; echo "$*"
+fi
 
 if [ "$#" -gt 0 ]
 then
