@@ -122,7 +122,7 @@ mkdir -p "$DESTINATION"
 
 ./compile.sh --clean && ./compile.sh
 
-if [[ "$*" == "-p"* ]] || [[ "$*" == "--problem"* ]]
+if [[ "$*" == *"-p"* ]] || [[ "$*" == *"--problem"* ]]
 then
     EDITOR="$(command -v code)"
 
