@@ -25,7 +25,7 @@ function test
     then
         mv "$DIR"/"$name".ll "$OUT"/"$name".ll
 
-        if clang -Wno-override-module -o "$OUT"/"$name".bin "$OUT"/"$name".ll
+        if clang -g -Wno-override-module -o "$OUT"/"$name".bin "$OUT"/"$name".ll
         then
             if ! "$OUT"/"$name".bin > "$OUT"/"$name".out
             then
