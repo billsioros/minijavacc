@@ -1,13 +1,26 @@
 #!/bin/bash
 
-EDITOR="$(command -v code)"
+EDITOR=""
 
 total=0
 problematic=0
 
 DIRECTORIES=( "./examples/positive" "./examples/extra/positive" )
 
-OUT="./IR"
+OUT="./test"
+
+if [[ "$*" == *"--clean"* ]]
+then
+    log "[MESSAGE]" "Purging..."
+
+    ./compile.sh --clean
+
+    find . -maxdepth 5 -name "*.ll" -delete -print
+
+    rm -rfv "$OUT"
+
+    exit 0
+fi
 
 mkdir -p "$OUT"
 
@@ -44,6 +57,8 @@ function test
 
     if [ "${filename##*.}" != "java" ]
     then
+        log "[WARNING]" "Extension Mismatch"
+
         return
     fi
 
@@ -61,7 +76,7 @@ function test
 
                 log "[PROBLEM]" "'$1' (Abrupt Termination)"
 
-                if  [ -n "$EDITOR" ] && [[ "$*" == *"--problem"* ]]
+                if  [ -n "$EDITOR" ]
                 then
                     "$EDITOR" -r "$directory"/"$name".java "$OUT"/"$name".structure "$OUT"/"$name".secondary
 
@@ -88,7 +103,7 @@ function test
 
                     log "[PROBLEM]" "'$1' (Different output from javac)"
 
-                    if [ -n "$EDITOR" ] && [[ "$*" == *"--problem"* ]]
+                    if [ -n "$EDITOR" ]
                     then
                         "$EDITOR" -w -r -d "$OUT"/"$name".secondary "$OUT/$name.original"
                     fi
@@ -108,27 +123,42 @@ function test
     read -n1 -r -p "Press any key to continue..."
 }
 
-if [[ "$*" == *"--clean"* ]]
+if [[ "$*" == *"--problem"* ]]
 then
-    log "[MESSAGE]" "Purging..."
-
-    ./compile.sh --clean
-
-    rm -rfv "$OUT"
-
-    exit 0
+    EDITOR="$(command -v code)"
 fi
 
 ./compile.sh --clean
 ./compile.sh
 
-for directory in "${DIRECTORIES[@]}"
-do
-    for filename in $(ls "$directory")
+if [ "$#" -gt 0 ]
+then
+    for arguement in "$@"
     do
-        test "$directory"/"$filename"
+        if [ -f "$arguement" ]
+        then
+            test "$arguement"
+        elif [ -d "$arguement" ]
+        then
+            for filename in $(ls "$arguement")
+            do
+                test "$arguement"/"$filename"
+            done
+        else
+            log "[WARNING]" "Failed to resolve arguement '$arguement'"
+
+            continue;
+        fi
     done
-done
+else
+    for directory in "${DIRECTORIES[@]}"
+    do
+        for filename in $(ls "$directory")
+        do
+            test "$directory"/"$filename"
+        done
+    done
+fi
 
 if [ "$problematic" -gt 0 ]
 then
