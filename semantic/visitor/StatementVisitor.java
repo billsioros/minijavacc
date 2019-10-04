@@ -155,8 +155,21 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         String type1 = ((Function)scope.getLocal()).getType();
         String type2 = n.f10.accept(this, scope);
 
-        if (!(type1.equals(type2)))
-            SemanticErrorManager.register(scope, n.f10, "Cannot convert '" + type2 + "' to '" + type1 + "'");
+        if (!type1.equals(type2))
+        {
+            try
+            {
+                Base base    = global.acquireClass(type1);
+                Base derived = global.acquireClass(type2);
+
+                if (!derived.isSubclassOf(base))
+                    SemanticErrorManager.register(scope, n.f10, "Cannot convert '" + type2 + "' to '" + type1 + "'");
+            }
+            catch (Exception ex)
+            {
+                SemanticErrorManager.register(scope, n.f10, "Cannot convert '" + type2 + "' to '" + type1 + "'");
+            }
+        }
 
         // f11 -> ";"
         // f12 -> "}"
@@ -348,7 +361,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         // f2 -> PrimaryExpression()
         String type2 = n.f2.accept(this, scope);
 
-        if (!type1.equals("int") && !type2.equals("int"))
+        if (!type1.equals("int") || !type2.equals("int"))
             SemanticErrorManager.register(scope, n, "The operator < is undefined for the argument type(s) '" + type1 + "','" + type2 + "'");
 
         return "boolean";
@@ -363,7 +376,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         // f2 -> PrimaryExpression()
         String type2 = n.f2.accept(this, scope);
 
-        if (!type1.equals("int") && !type2.equals("int"))
+        if (!type1.equals("int") || !type2.equals("int"))
             SemanticErrorManager.register(scope, n, "The operator + is undefined for the argument type(s) '" + type1 + "','" + type2 + "'");
 
         return "int";
@@ -378,7 +391,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         // f2 -> PrimaryExpression()
         String type2 = n.f2.accept(this, scope);
 
-        if (!type1.equals("int") && !type2.equals("int"))
+        if (!type1.equals("int") || !type2.equals("int"))
             SemanticErrorManager.register(scope, n, "The operator - is undefined for the argument type(s) '" + type1 + "','" + type2 + "'");
 
         return "int";
@@ -393,7 +406,7 @@ public class StatementVisitor extends GJDepthFirst<String, Scope>
         // f2 -> PrimaryExpression()
         String type2 = n.f2.accept(this, scope);
 
-        if (!type1.equals("int") && !type2.equals("int"))
+        if (!type1.equals("int") || !type2.equals("int"))
             SemanticErrorManager.register(scope, n, "The operator * is undefined for the argument type(s) '" + type1 + "','" + type2 + "'");
 
         return "int";
