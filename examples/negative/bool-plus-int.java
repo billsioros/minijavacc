@@ -4,6 +4,6 @@ class BoolPlusInt
     {
         int result;
 
-        result = 10 + false;
+        result = false + 10;
     }
 }
